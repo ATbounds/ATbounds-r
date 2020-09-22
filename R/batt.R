@@ -30,11 +30,11 @@ batt <- function(y, t, x, q = 10L, discrete = FALSE){
     nn_t <- cbind(nn_t, t[nn_i[,k]])
   }
 
-  if (discete == TRUE){
+  if (discrete == TRUE){
     small_c <- 1e-8
     nx <- rowSums(nn_d < small_c)
     nx1 <- rowSums(nn_t*(nn_d < small_c))
-  } else if (discete == FALSE){
+  } else if (discrete == FALSE){
     nx <- q
     nx1 <- rowSums(nn_t)
   }
