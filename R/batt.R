@@ -5,6 +5,7 @@
 #' @param y n-dimensional vector of binary outcomes
 #' @param t n-dimensional vector of binary treatments
 #' @param x n by p matrix of covariates
+#' @param rps n-dimensional vector of reference propensity scores
 #' @param q polynomial order (default: q = 10)
 #' @param discrete TRUE if x inclues only discrete covariates and FALSE if not (default: FALSE)
 #' @return An S3 object of type "bter". The object has the following elements.
@@ -17,7 +18,7 @@
 #' @references Sokbae Lee and Martin Weidner. Bounding Treatment Effects by Pooling Limited Information across Observations.
 #'
 #' @export
-batt <- function(y, t, x, q = 10L, discrete = FALSE){
+batt <- function(y, t, x, rps, q = 10L, discrete = FALSE){
 
   ### Nearest neighborhood estimation ###
 
@@ -44,7 +45,7 @@ batt <- function(y, t, x, q = 10L, discrete = FALSE){
 
 
   nx0 <- nx - nx1
-  pxr <- px_lin/(px_lin-1)
+  pxr <- rps/(rps-1)
 
   ### Computing weights and obtain bound estimates ###
 
