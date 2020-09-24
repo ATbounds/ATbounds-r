@@ -1,4 +1,4 @@
-Package: bter
+Package: ATbounds
 Type: Package
 Title: Bounding Treatment Effects
 Version: 0.1.0

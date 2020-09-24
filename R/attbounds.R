@@ -18,7 +18,7 @@
 #' @references Sokbae Lee and Martin Weidner. Bounding Treatment Effects by Pooling Limited Information across Observations.
 #'
 #' @export
-batt <- function(y, t, x, rps, q = 10L, discrete = FALSE){
+attbounds <- function(y, t, x, rps, q = 10L, discrete = FALSE){
 
   ### Nearest neighborhood estimation ###
 
@@ -73,7 +73,7 @@ batt <- function(y, t, x, rps, q = 10L, discrete = FALSE){
     att_ub <- sum(att_ub)/sum(t)
 
     outputs = list("lb"=att_lb,"ub"=att_ub)
-    class(outputs) = 'batt'
+    class(outputs) = 'ATbounds'
 
     outputs
 }
