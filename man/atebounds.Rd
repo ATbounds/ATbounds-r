@@ -4,7 +4,16 @@
 \alias{atebounds}
 \title{Bounding the average treatment effect}
 \usage{
-atebounds(y, t, x, rps, q = 10L, discrete = FALSE)
+atebounds(
+  y,
+  t,
+  x,
+  rps,
+  q = 2L,
+  permute_max = 0,
+  discrete = FALSE,
+  studentize = TRUE
+)
 }
 \arguments{
 \item{y}{n-dimensional vector of binary outcomes}
@@ -15,18 +24,23 @@ atebounds(y, t, x, rps, q = 10L, discrete = FALSE)
 
 \item{rps}{n-dimensional vector of reference propensity scores}
 
-\item{q}{polynomial order (default: q = 10)}
+\item{q}{polynomial order (default: q = 2, which uses the nearest neighbor excluding own observations)}
+
+\item{permute_max}{maximum number of permutations to shuffle the data (default: 0)}
 
 \item{discrete}{TRUE if x inclues only discrete covariates and FALSE if not (default: FALSE)}
+
+\item{studentize}{TRUE if x is studentized elementwise and FALSE if not (default: TRUE)}
 }
 \value{
-An S3 object of type "bter". The object has the following elements.
-\item{y1_lb}{the lower bound of E[Y(1)]}
-\item{y1_ub}{the upper bound of E[Y(1)]}
-\item{y0_lb}{the lower bound of E[Y(0)]}
-\item{y0_ub}{the upper bound of E[Y(0)]}
-\item{ate_lb}{the lower bound of E[Y(1) - Y(0)]}
-\item{att_ub}{the upper bound of E[Y(1) - Y(0)]}
+An S3 object of type "ATbounds". The object has the following elements.
+\item{y1_lb}{the lower bound of the average of Y(1), i.e. E[Y(1)]}
+\item{y1_ub}{the upper bound of the average of Y(1), i.e. E[Y(1)]}
+\item{y0_lb}{the lower bound of the average of Y(0), i.e. E[Y(0)]}
+\item{y0_ub}{the upper bound of the average of Y(0), i.e. E[Y(0)]}
+\item{ate_lb}{the lower bound of ATE, i.e. E[Y(1) - Y(0)]}
+\item{ate_ub}{the upper bound of ATE, i.e. E[Y(1) - Y(0)]}
+\item{ate_rps}{the point estimate of ATE using the reference propensity score}
 }
 \description{
 Bounds the average treatment effect under the unconfoundedness assumption without the overlap condition

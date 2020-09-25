@@ -6,15 +6,19 @@
 #' @param t n-dimensional vector of binary treatments
 #' @param x n by p matrix of covariates
 #' @param rps n-dimensional vector of reference propensity scores
-#' @param q polynomial order (default: q = 10)
+#' @param q polynomial order (default: q = 2, which uses the nearest neighbor excluding own observations)
+#' @param permute_max maximum number of permutations to shuffle the data (default: 0)
 #' @param discrete TRUE if x inclues only discrete covariates and FALSE if not (default: FALSE)
-#' @return An S3 object of type "bter". The object has the following elements.
-#' \item{y1_lb}{the lower bound of E[Y(1)]}
-#' \item{y1_ub}{the upper bound of E[Y(1)]}
-#' \item{y0_lb}{the lower bound of E[Y(0)]}
-#' \item{y0_ub}{the upper bound of E[Y(0)]}
-#' \item{ate_lb}{the lower bound of E[Y(1) - Y(0)]}
-#' \item{att_ub}{the upper bound of E[Y(1) - Y(0)]}
+#' @param studentize TRUE if x is studentized elementwise and FALSE if not (default: TRUE)
+#' 
+#' @return An S3 object of type "ATbounds". The object has the following elements.
+#' \item{y1_lb}{the lower bound of the average of Y(1), i.e. E[Y(1)]}
+#' \item{y1_ub}{the upper bound of the average of Y(1), i.e. E[Y(1)]}
+#' \item{y0_lb}{the lower bound of the average of Y(0), i.e. E[Y(0)]}
+#' \item{y0_ub}{the upper bound of the average of Y(0), i.e. E[Y(0)]}
+#' \item{ate_lb}{the lower bound of ATE, i.e. E[Y(1) - Y(0)]}
+#' \item{ate_ub}{the upper bound of ATE, i.e. E[Y(1) - Y(0)]}
+#' \item{ate_rps}{the point estimate of ATE using the reference propensity score}
 #' 
 #' @examples
 #' # to be added
@@ -22,9 +26,44 @@
 #' @references Sokbae Lee and Martin Weidner. Bounding Treatment Effects by Pooling Limited Information across Observations.
 #'
 #' @export
-atebounds <- function(y, t, x, rps, q = 10L, discrete = FALSE){
+atebounds <- function(y, t, x, rps, q = 2L, permute_max = 0, discrete = FALSE, studentize = TRUE){
 
-  ### Nearest neighborhood estimation ###
+  # Studentize covariates elementwise
+  
+  n <- nrow(x)
+  
+  if (studentize == TRUE){
+  sd_x <- apply(x,2,stats::sd)
+  sd_x <- matrix(sd_x,nrow=ncol(x),ncol=n)
+  m_x <- apply(x,2,mean)
+  m_x <- matrix(m_x,nrow=ncol(x),ncol=n)
+  x <- (x-t(m_x))/t(sd_x) 
+  }     
+  
+  results <- {}
+  
+  # Reorder the sample to break ties in random permutation to shuffle the data 
+  
+  for (j in 0:permute_max){
+  
+    if ( permute_max > 0){    
+    
+      data <- cbind(y,t,x,rps)
+      n <- nrow(data)  
+      data <- data[sample.int(n,n),] # random permutation to shuffle the data  
+      y <- data[,1]
+      t <- data[,2]
+      x <- data[,(3:(ncol(data)-1))]
+      rps <- data[,ncol(data)]
+    }
+  
+  ### ATE estimation using reference propensity scores ###  
+      
+  y1_rps <- mean(t*y/rps) 
+  y0_rps <- mean((1-t)*y/(1-rps))
+  ate_rps <- y1_rps - y0_rps
+    
+  ### Nearest neighbor estimation ###
 
   nn_data <- FNN::get.knnx(x, x, k=q)
   nn_i <- nn_data$nn.index
@@ -80,23 +119,38 @@ atebounds <- function(y, t, x, rps, q = 10L, discrete = FALSE){
       }
     }
 
-    y1_lb <- min(y) + y1_wt*(treat == 1)*(y-min(y))
-    y1_ub <- max(y) + y1_wt*(treat == 1)*(y-max(y))
+    y1_lb <- min(y) + y1_wt*(t == 1)*(y-min(y))
+    y1_ub <- max(y) + y1_wt*(t == 1)*(y-max(y))
     y1_lb <- mean(y1_lb)
     y1_ub <- mean(y1_ub)
     
-    y0_lb <- min(y) + y0_wt*(treat == 0)*(y-min(y))
-    y0_ub <- max(y) + y0_wt*(treat == 0)*(y-max(y))
+    y0_lb <- min(y) + y0_wt*(t == 0)*(y-min(y))
+    y0_ub <- max(y) + y0_wt*(t == 0)*(y-max(y))
     y0_lb <- mean(y0_lb)
     y0_ub <- mean(y0_ub)
     
-   ate_lb <-  y1_lb - y0_ub
-   ate_ub <-  y1_ub - y0_lb
-   
+  result <- matrix(NA, nrow = 1, ncol = 4) 
+  result <- c(y1_lb, y1_ub, y0_lb, y0_ub)
+  results <- rbind(results,result)  
+  }
+  
+  est <- apply(results,2,mean)
 
-    outputs = list("y1_lb"=y1_lb,"y1_ub"=y1_ub,
-                   "y0_lb"=y0_lb,"y0_ub"=y0_ub,
-                   "ate_lb"=ate_lb,"ate_ub"=ate_ub)
+  y1_lb <- est[1]*(est[1] <= est[2]) + y1_rps*(est[1] > est[2])
+  y1_ub <- est[2]*(est[1] <= est[2]) + y1_rps*(est[1] > est[2])
+  y0_lb <- est[3]*(est[3] <= est[4]) + y0_rps*(est[3] > est[4])
+  y0_ub <- est[4]*(est[3] <= est[4]) + y0_rps*(est[3] > est[4])
+    
+
+  ate_lb <-  y1_lb - y0_ub
+  ate_ub <-  y1_ub - y0_lb
+  
+  
+  outputs = list("y1_lb"=y1_lb,"y1_ub"=y1_ub,
+                 "y0_lb"=y0_lb,"y0_ub"=y0_ub,
+                 "ate_lb"=ate_lb,"ate_ub"=ate_ub,
+                 "ate_rps"=ate_rps)  
+
     class(outputs) = 'ATbounds'
 
     outputs

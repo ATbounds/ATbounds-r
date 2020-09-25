@@ -4,7 +4,16 @@
 \alias{attbounds}
 \title{Bounding the average treatment effect on the treated}
 \usage{
-attbounds(y, t, x, rps, q = 10L, discrete = FALSE)
+attbounds(
+  y,
+  t,
+  x,
+  rps,
+  q = 2L,
+  permute_max = 0,
+  discrete = FALSE,
+  studentize = TRUE
+)
 }
 \arguments{
 \item{y}{n-dimensional vector of binary outcomes}
@@ -15,14 +24,19 @@ attbounds(y, t, x, rps, q = 10L, discrete = FALSE)
 
 \item{rps}{n-dimensional vector of reference propensity scores}
 
-\item{q}{polynomial order (default: q = 10)}
+\item{q}{polynomial order (default: q = 2, which uses the nearest neighbor excluding own observations)}
+
+\item{permute_max}{maximum number of permutations to shuffle the data (default: 0)}
 
 \item{discrete}{TRUE if x inclues only discrete covariates and FALSE if not (default: FALSE)}
+
+\item{studentize}{TRUE if x is studentized elementwise and FALSE if not (default: TRUE)}
 }
 \value{
-An S3 object of type "bter". The object has the following elements.
-\item{lb}{the lower bound of ATT}
-\item{ub}{the upper bound of ATT}
+An S3 object of type "ATbounds". The object has the following elements.
+\item{lb}{the lower bound of ATT, i.e. E[Y(1) - Y(0) | T = 1]}
+\item{ub}{the upper bound of ATT, i.e. E[Y(1) - Y(0) | T = 1]}
+\item{att_rps}{the point estimate of ATT using the reference propensity score}
 }
 \description{
 Bounds the average treatment effect on the treated under the unconfoundedness assumption without the overlap condition
