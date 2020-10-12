@@ -30,6 +30,7 @@ atebounds <- function(y, t, x, rps, q = 2L, permute_max = 0, discrete = FALSE, s
 
   # Studentize covariates elementwise
   
+  x <- as.matrix(x)
   n <- nrow(x)
   
   if (studentize == TRUE){
@@ -136,15 +137,20 @@ atebounds <- function(y, t, x, rps, q = 2L, permute_max = 0, discrete = FALSE, s
   
   est <- apply(results,2,mean)
 
+  if (FALSE){
   y1_lb <- est[1]*(est[1] <= est[2]) + y1_rps*(est[1] > est[2])
   y1_ub <- est[2]*(est[1] <= est[2]) + y1_rps*(est[1] > est[2])
   y0_lb <- est[3]*(est[3] <= est[4]) + y0_rps*(est[3] > est[4])
   y0_ub <- est[4]*(est[3] <= est[4]) + y0_rps*(est[3] > est[4])
-    
-
+  }
+  
+  y1_lb <- est[1]
+  y1_ub <- est[2]
+  y0_lb <- est[3]
+  y0_ub <- est[4]
+  
   ate_lb <-  y1_lb - y0_ub
   ate_ub <-  y1_ub - y0_lb
-  
   
   outputs = list("y1_lb"=y1_lb,"y1_ub"=y1_ub,
                  "y0_lb"=y0_lb,"y0_ub"=y0_ub,

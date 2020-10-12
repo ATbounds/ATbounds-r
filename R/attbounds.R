@@ -26,9 +26,11 @@ attbounds <- function(y, t, x, rps, q = 2L, permute_max = 0, discrete = FALSE, s
     
     # Studentize covariates elementwise
     
+    x <- as.matrix(x)
     n <- nrow(x)
     
     if (studentize == TRUE){
+
       sd_x <- apply(x,2,stats::sd)
       sd_x <- matrix(sd_x,nrow=ncol(x),ncol=n)
       m_x <- apply(x,2,mean)
@@ -118,8 +120,13 @@ attbounds <- function(y, t, x, rps, q = 2L, permute_max = 0, discrete = FALSE, s
     
     est <- apply(results,2,mean)
     
+    if (FALSE){
     att_lb <- est[1]*(est[1] <= est[2]) + att_rps*(est[1] > est[2])
     att_ub <- est[2]*(est[1] <= est[2]) + att_rps*(est[1] > est[2])
+    }
+    
+    att_lb <- est[1]
+    att_ub <- est[2]
     
     outputs = list("lb"=att_lb,"ub"=att_ub,"att_rps"=att_rps)
     class(outputs) = 'ATbounds'
