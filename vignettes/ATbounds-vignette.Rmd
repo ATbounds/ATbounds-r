@@ -114,7 +114,7 @@ In implementing `atebounds`, the default choice of the polynomial order `q` is $
 
 There are two more options which are not used above:
 
-* `discrete`: `TRUE` if `X` inclues only discrete covariates and `FALSE` if not (default: `FALSE`)
+* `discrete`: `TRUE` if `X` includes only discrete covariates and `FALSE` if not (default: `FALSE`)
 * `studentize`: `TRUE` if `X` is studentized elementwise and `FALSE` if not (default: `TRUE`)
 
 We print the outputs saved in `bns_nsw`.

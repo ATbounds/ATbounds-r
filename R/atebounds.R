@@ -8,7 +8,7 @@
 #' @param rps n-dimensional vector of reference propensity scores
 #' @param q polynomial order (default: q = 2, which uses the nearest neighbor excluding own observations)
 #' @param permute_max maximum number of permutations to shuffle the data (default: 0)
-#' @param discrete TRUE if x inclues only discrete covariates and FALSE if not (default: FALSE)
+#' @param discrete TRUE if x includes only discrete covariates and FALSE if not (default: FALSE)
 #' @param studentize TRUE if x is studentized elementwise and FALSE if not (default: TRUE)
 #' 
 #' @return An S3 object of type "ATbounds". The object has the following elements.
@@ -43,7 +43,7 @@ atebounds <- function(y, t, x, rps, q = 2L, permute_max = 0, discrete = FALSE, s
   
   results <- {}
   
-  # Reorder the sample to break ties in random permutation to shuffle the data 
+  # Reorder the sample to break ties
   
   for (j in 0:permute_max){
   

@@ -1,0 +1,32 @@
+---
+title: "ATbounds-vignette-RHC"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{ATbounds-vignette-RHC}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(ATbounds)
+```
+
+## Right Heart Catheterization Dataset 
+
+In this vignette, we revisit the well-known Right Heart Catheterization Dataset available at [Vanderbilt Biostatistics Datasets Page](http://biostat.mc.vanderbilt.edu/wiki/Main/DataSets).
+A cleaned version of the dataset is available in the package. 
+
+```{r}
+  y <- RHC[,"survival"]
+  t <- RHC[,"RHC"]
+  x <- RHC[,-c(1,2)]
+```
+
+To be continued

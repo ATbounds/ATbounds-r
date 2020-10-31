@@ -28,7 +28,7 @@ atebounds(
 
 \item{permute_max}{maximum number of permutations to shuffle the data (default: 0)}
 
-\item{discrete}{TRUE if x inclues only discrete covariates and FALSE if not (default: FALSE)}
+\item{discrete}{TRUE if x includes only discrete covariates and FALSE if not (default: FALSE)}
 
 \item{studentize}{TRUE if x is studentized elementwise and FALSE if not (default: TRUE)}
 }
