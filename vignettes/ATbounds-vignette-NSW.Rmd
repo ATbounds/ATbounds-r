@@ -1,8 +1,8 @@
 ---
-title: "ATbounds-vignette"
+title: "ATbounds-vignette-NSW"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{ATbounds-vignette}
+  %\VignetteIndexEntry{ATbounds-vignette-NSW}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 library(ATbounds)
 ```
 
-To illustrate the usefulness of the package, we use the well-known LaLonde dataset available at [Rajeev Dehejia's Data Page](http://users.nber.org/~rdehejia/nswdata2.html).
+To illustrate the usefulness of the package, we first use the well-known LaLonde dataset available at [Rajeev Dehejia's Data Page](http://users.nber.org/~rdehejia/nswdata2.html).
 
 ## LaLonde's Experimental Sample 
 
@@ -65,6 +65,7 @@ The average treatment effect is obtained by
 Dehejia and Wahba (1999, 2002) extract a further subset of Lalonde's NSW experimental data to obtain a subset containing information on RE74 (earnings in 1974). 
 
 ```{r}
+  detach(nsw)
   nswre_treated <- read.table("http://users.nber.org/~rdehejia/data/nswre74_treated.txt")
   colnames(nswre_treated) <- c("treat","age","edu","black","hispanic",
                            "married","nodegree","RE74","RE75","RE78")
@@ -91,13 +92,15 @@ The covariates are as follows:
 * `RE75`: earnings in 1975. 
 
 If we assume that the Dehejia-Wahba sample still preserves initial randomization, we can
-set the reference propensity score to be independent of covariates. 
+set the reference propensity score to be independent of covariates. However, it may not be the case and therefore, our approach can provide a robust method to check whether the Dehejia-Wahba sample can be viewed as a randomized controlled experiment. 
+
+We first define the the reference propensity score.
 
 ```{r}
   rps <- rep(mean(D),length(D))  
 ```
 
-The average treatment effect is obtained by 
+Using this reference propensity score, the average treatment effect is obtained by 
 
 ```{r}
   ate_nswre <- mean(D*Y)/mean(D)-mean((1-D)*Y)/mean(1-D)
@@ -138,6 +141,23 @@ With $q=2$, the bounds for ATE is
 print(c(bns_nsw$ate_lb,bns_nsw$ate_ub))
 ```
 
+Recall that the point ATE estimate was
+
+```{r}
+print(ate_nswre)
+```
+
+Thus, the upper bound is slightly smaller than the point estimate using the reference propensity score. However, their difference may not be significant given the small sample size.
+
+We now look at the case with $q=3$.
+
+```{r}
+  bns_nsw <- atebounds(Y, D, X, rps, q = 3, permute_max = 500)
+  print(c(bns_nsw$ate_lb,bns_nsw$ate_ub))
+```
+
+With $q=3$, the bounds cross. This indicates that the ATE estimate may be a reasonable estimate. We need to develop an inference method to reach a more definite answer.
+
 We now look at ATT.
 
 ```{r}
@@ -151,6 +171,8 @@ We also set $q=3$.
   bns_nsw_att <- attbounds(Y, D, X, rps, q = 3, permute_max = 500)
   print(bns_nsw_att)
 ```
+
+Again the results are a bit sensitive to the choice of $q$ and it is likely to be deriven by a relative small sample size.
 
 <!-- Notice that `bns_nsw$y1_lb` is equal to `bns_nsw$y1_ub` above. This is because it turns out that the estimated upper bound was smaller than the estimated lower bound, which indicates that $\mathbb{E}[Y(1)]$ may be point-identified, that is, the assumed reference propensity score is correctly specified. If this happens, we assign the following for both the upper and lower bounds: -->
 <!-- $$ -->
@@ -166,6 +188,7 @@ We also set $q=3$.
 
 
 ```{r}
+  attach(nswre)
   psid2_control <- read.table("http://users.nber.org/~rdehejia/data/psid2_controls.txt")
   colnames(psid2_control) <- c("treat","age","edu","black","hispanic",
                            "married","nodegree","RE74","RE75","RE78")
@@ -182,6 +205,13 @@ We now estimate the reference propensity score using a logit model and obtain th
 ```{r}
   lm <- stats::glm(D~X, family=binomial("logit"))
   rps <- lm$fitted.values
+  bns_psid <- atebounds(Y, D, X, rps, q = 2, permute_max = 500)
+  print(bns_psid)
+```
+
+```{r}
+  lm <- stats::glm(D~X, family=binomial("logit"))
+  rps <- lm$fitted.values
   bns_psid <- atebounds(Y, D, X, rps, q = 3, permute_max = 500)
   print(bns_psid)
 ```
@@ -193,13 +223,20 @@ The bounds are wide and includes zero. We compare these with the Manski bounds, 
   print(bns_psid)
 ```
 
-We can see that the Manski bounds are qualitatively comparable to those with $q = 1$. This is interesting because the Manski bounds do not impose the unconfoundedness assumption.   
+We can see that the Manski bounds are qualitatively comparable to those with $q = 2,3$. This is interesting because the Manski bounds do not impose the unconfoundedness assumption.   
 
 Finally, we obtain the bounds for the average treatment effect on the treated (ATT).
 
 ```{r}
-  bns_psid_att <- attbounds(Y, D, X, rps, q = 3, permute_max = 500)
+  bns_psid_att <- attbounds(Y, D, X, rps, q = 2, permute_max = 500)
   print(bns_psid_att)
 ```
 
+```{r}
+  bns_psid_att <- attbounds(Y, D, X, rps, q = 3, permute_max = 500)
+  print(bns_psid_att)
+  detach(psid)
+```
+
 Again, we find that the bounds are wide; they seem similar to those for the ATE. 
+Overall, the empirical results suggest that PSID2 controls are substantially different from the treated units such that the unconfoundedness assumption does not provide any meaningful restriction once the overlap condition is dropped and the logit prepensity score can be misspecified.

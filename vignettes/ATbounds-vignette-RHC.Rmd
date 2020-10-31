@@ -52,19 +52,28 @@ We now consider $q=2$
   atebounds(Y, D, X, rps, q = 2)
 ```
 
-and $q=3,4$. 
+and $q=3$. 
 
 ```{r}
   atebounds(Y, D, X, rps, q = 3)
-  atebounds(Y, D, X, rps, q = 4)
 ```
+
+Finally, we take a relatively large $q = 10$.
+
+```{r}
+  atebounds(Y, D, X, rps, q = 10)
+```
+
 
 ## Bounding the Average Treatment Effect on the Treated
 
+We now look at ATT with a few values of $q$.
+
 ```{r}
   attbounds(Y, D, X, rps, q = 3)
-  attbounds(Y, D, X, rps, q = 4)
+  attbounds(Y, D, X, rps, q = 5)
+  attbounds(Y, D, X, rps, q = 10)
+  
 ```
 
 
-To be continued
