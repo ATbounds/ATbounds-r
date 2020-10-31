@@ -10,19 +10,25 @@
 #' @param permute_max maximum number of permutations to shuffle the data (default: 0)
 #' @param discrete TRUE if x includes only discrete covariates and FALSE if not (default: FALSE)
 #' @param studentize TRUE if x is studentized elementwise and FALSE if not (default: TRUE)
-#'
+#' @param small_c a small positive constant to determine the two covariate vectors are identical (default: 1e-8)
+#' This constatn is only used when the option 'discrete' is TRUE. 
+#' 
 #' @return An S3 object of type "ATbounds". The object has the following elements.
 #' \item{lb}{the lower bound of ATT, i.e. E[Y(1) - Y(0) | T = 1]}
 #' \item{ub}{the upper bound of ATT, i.e. E[Y(1) - Y(0) | T = 1]}
 #' \item{att_rps}{the point estimate of ATT using the reference propensity score}
 #' 
 #' @examples
-#' # to be added
+#'   Y <- RHC[,"survival"]
+#'   D <- RHC[,"RHC"]
+#'   X <- RHC[,-c(1,2)]
+#'   rps <- rep(mean(D),length(D))  
+#'   results_att <- attbounds(Y, D, X, rps, q = 3)
 #'
 #' @references Sokbae Lee and Martin Weidner. Bounding Treatment Effects by Pooling Limited Information across Observations.
 #'
 #' @export
-attbounds <- function(y, t, x, rps, q = 2L, permute_max = 0, discrete = FALSE, studentize = TRUE){
+attbounds <- function(y, t, x, rps, q = 2L, permute_max = 0, discrete = FALSE, studentize = TRUE, small_c = 1e-8){
     
     # Studentize covariates elementwise
     
@@ -72,7 +78,6 @@ attbounds <- function(y, t, x, rps, q = 2L, permute_max = 0, discrete = FALSE, s
   }
 
   if (discrete == TRUE){
-    small_c <- 1e-8
     nx <- rowSums(nn_d < small_c)
     nx1 <- rowSums(nn_t*(nn_d < small_c))
   } else if (discrete == FALSE){
@@ -91,20 +96,20 @@ attbounds <- function(y, t, x, rps, q = 2L, permute_max = 0, discrete = FALSE, s
 
     if (q == 1){
       rps_wt_nn <- 0
-    }
-    if (q > 1){
+    } else if (q > 1){
 
       if ((q %% 2) == 1){ # if q is odd and q > 1
         v_x <- nx1 - nx1*(pxr^nx0)
-        nx0c <- nx0 + (nx0 == 0L)
-        rps_wt_nn <- -v_x/nx0c
-      }
-
-      if ((q %% 2) == 0){ # q is even
+      } else if ((q %% 2) == 0){ # q is even
         v_x <- nx1 - nx*(pxr^nx0)
-        nx0c <- nx0 + (nx0 == 0L)
-        rps_wt_nn <- -v_x/nx0c
-      }
+      } else{
+        stop("'q' must be a positive integer.")      
+      }  
+      
+      nx0c <- nx0 + (nx0 == 0L)
+      rps_wt_nn <- -v_x/nx0c
+    } else{
+      stop("'q' must be a positive integer.")      
     }
 
     att_lb <- t*(y-max(y)) + rps_wt_nn*(1-t)*(y-max(y))

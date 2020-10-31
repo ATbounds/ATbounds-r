@@ -10,9 +10,10 @@ atebounds(
   x,
   rps,
   q = 2L,
-  permute_max = 0,
+  permute_max = 0L,
   discrete = FALSE,
-  studentize = TRUE
+  studentize = TRUE,
+  small_c = 1e-08
 )
 }
 \arguments{
@@ -31,6 +32,9 @@ atebounds(
 \item{discrete}{TRUE if x includes only discrete covariates and FALSE if not (default: FALSE)}
 
 \item{studentize}{TRUE if x is studentized elementwise and FALSE if not (default: TRUE)}
+
+\item{small_c}{a small positive constant to determine the two covariate vectors are identical (default: 1e-8). 
+This constatn is only used when the option 'discrete' is TRUE.}
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.
@@ -46,7 +50,11 @@ An S3 object of type "ATbounds". The object has the following elements.
 Bounds the average treatment effect under the unconfoundedness assumption without the overlap condition
 }
 \examples{
-# to be added
+  Y <- RHC[,"survival"]
+  D <- RHC[,"RHC"]
+  X <- RHC[,-c(1,2)]
+  rps <- rep(mean(D),length(D))  
+  results_ate <- atebounds(Y, D, X, rps, q = 3)
 
 }
 \references{

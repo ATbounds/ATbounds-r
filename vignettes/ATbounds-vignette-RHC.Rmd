@@ -24,9 +24,47 @@ In this vignette, we revisit the well-known Right Heart Catheterization Dataset 
 A cleaned version of the dataset is available in the package. 
 
 ```{r}
-  y <- RHC[,"survival"]
-  t <- RHC[,"RHC"]
-  x <- RHC[,-c(1,2)]
+  Y <- RHC[,"survival"]
+  D <- RHC[,"RHC"]
+  X <- RHC[,-c(1,2)]
 ```
+
+## Bounding the Average Treatment Effect 
+
+We take the reference propensity score to be 
+$\widehat{p}_{\text{RPS}}(X_i) = n^{-1} \sum_{i=1}^n D_i$
+for each observation $i$. That is, we assign the sample proportion of the treated to the 
+reference propensity scores uniformly for all observations. Of course, this is likely to be misspecified; however, it has the advantage that $1/\widehat{p}_{\text{RPS}}(X_i)$ is never close to 0 or 1.
+
+```{r}
+  rps <- rep(mean(D),length(D))  
+```
+
+We start with $q=1$. 
+
+```{r}
+  atebounds(Y, D, X, rps, q = 1)
+```
+
+We now consider $q=2$ 
+
+```{r}
+  atebounds(Y, D, X, rps, q = 2)
+```
+
+and $q=3,4$. 
+
+```{r}
+  atebounds(Y, D, X, rps, q = 3)
+  atebounds(Y, D, X, rps, q = 4)
+```
+
+## Bounding the Average Treatment Effect on the Treated
+
+```{r}
+  attbounds(Y, D, X, rps, q = 3)
+  attbounds(Y, D, X, rps, q = 4)
+```
+
 
 To be continued
