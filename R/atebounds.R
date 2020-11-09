@@ -34,6 +34,11 @@
 #' @export
 atebounds <- function(y, t, x, rps, q = 2L, permute_max = 0L, discrete = FALSE, studentize = TRUE, small_c = 1e-8){
 
+  # Check whether "discrete" is TRUE or FALSE
+  if ((discrete != TRUE) & (discrete != FALSE)){
+    stop("'discrete' must be either TRUE or FALSE.")
+  }
+  
   # Studentize covariates elementwise
   
   x <- as.matrix(x)
@@ -69,40 +74,102 @@ atebounds <- function(y, t, x, rps, q = 2L, permute_max = 0L, discrete = FALSE, 
   y1_rps <- mean(t*y/rps) 
   y0_rps <- mean((1-t)*y/(1-rps))
   ate_rps <- y1_rps - y0_rps
-    
-  ### Nearest neighbor estimation ###
 
-  nn_data <- FNN::get.knnx(x, x, k=q)
-  nn_i <- nn_data$nn.index
-  nn_d <- nn_data$nn.dist
-
-  nn_t <- {} # q by n matrix of treatment values for NN estimation
-  for (k in 1:ncol(nn_i)){
-    nn_t <- cbind(nn_t, t[nn_i[,k]])
-  }
-
+  ### Computing weights with discrete covariates ###
+  
   if (discrete == TRUE){
-    nx <- rowSums(nn_d < small_c) # number of obs. such that X_i = x for each row of x
-    nx1 <- rowSums(nn_t*(nn_d < small_c)) # number of obs. such that X_i = x and D_i = 1 for each row of x
-  } else if (discrete == FALSE){
-    nx <- q
-    nx1 <- rowSums(nn_t)
-  }
-  else {
-    stop("'discrete' must be either TRUE or FALSE.")
-  }
-
-  nx0 <- nx - nx1
-
-  px1 <- ((rps-1)/rps)^nx1
-  px0 <- (rps/(rps-1))^nx0
-
-  ### Computing weights and obtain bound estimates ###
-
+    
     if (q == 1){
       y1_wt <- 1
       y0_wt <- 1
     } else if (q > 1){
+      
+      nn_data <- FNN::get.knnx(x, x, k=n) # this step may not be fast if n is large
+      nn_i <- nn_data$nn.index
+      nn_d <- nn_data$nn.dist # to get the Euclidiean distances among all covariates
+      
+      nn_t <- {} # n by q matrix of treatment values for counting nx1 and nx0
+      for (k in 1:ncol(nn_i)){
+        nn_t <- cbind(nn_t, t[nn_i[,k]])
+      }
+      
+      nx <- rowSums(nn_d < small_c) # number of obs. such that X_i = x for each row of x
+      nx1 <- rowSums(nn_t*(nn_d < small_c)) # number of obs. such that X_i = x and D_i = 1 for each row of x
+      nx0 <- nx - nx1
+      
+      for (i in 1:n){
+        
+        qq <- min(q,nx[i])
+        k_upper <- 2*floor(qq/2)
+        v_x1 <- 0
+        v_x0 <- 0
+        
+        for (k in 0:k_upper){
+          
+          px1k <- ((rps[i]-1)/rps[i])^k
+          px0k <- (rps[i]/(rps[i]-1))^k
+          
+          omega1 <- px1k
+          omega0 <- px0k
+          
+          if ((qq %% 2) == 1){ # if min(q,nx) is odd
+            
+            term_x1 <- ((nx[i] - nx1[i])/nx[i])*(1/choose(nx[i]-1,qq-1))*choose(nx1[i],k)*choose(nx[i]-1-nx1[i],qq-1-k)
+            term_x0 <- ((nx[i] - nx0[i])/nx[i])*(1/choose(nx[i]-1,qq-1))*choose(nx0[i],k)*choose(nx[i]-1-nx0[i],qq-1-k)
+            
+          } else if ((q %% 2) == 0){ # min(q,nx) is even
+            
+            term_x1 <- (1/choose(nx[i],qq))*choose(nx1[i],k)*choose(nx[i]-nx1[i],qq-k)
+            term_x0 <- (1/choose(nx[i],qq))*choose(nx0[i],k)*choose(nx[i]-nx0[i],qq-k)
+            
+          } else{
+            stop("'q' must be a positive integer.")      
+          }  
+          
+          omega1 <- px1k*term_x1
+          omega0 <- px0k*term_x0
+
+          v_x1 <- v_x1 + omega1
+          v_x0 <- v_x0 + omega0
+          
+        }
+        
+      } 
+      
+      nx1c <- nx1 + (nx1 == 0L)
+      nx0c <- nx0 + (nx0 == 0L)      
+      y1_wt <- nx*v_x1/nx1c
+      y0_wt <- nx*v_x0/nx0c
+    } else{
+      stop("'q' must be a positive integer.")      
+    }
+  }
+  
+  
+  ### Computing weights with continuous covariates ###
+  
+  if (discrete == FALSE){
+    
+    if (q == 1){
+      y1_wt <- 1
+      y0_wt <- 1
+    } else if (q > 1){
+      
+      nn_data <- FNN::get.knnx(x, x, k=q)
+      nn_i <- nn_data$nn.index
+      nn_d <- nn_data$nn.dist
+      
+      nn_t <- {} # n by q matrix of treatment values for NN estimation
+      for (k in 1:ncol(nn_i)){
+        nn_t <- cbind(nn_t, t[nn_i[,k]])
+      }
+      
+      nx <- q
+      nx1 <- rowSums(nn_t)
+      nx0 <- nx - nx1
+      
+      px1 <- ((rps-1)/rps)^nx1
+      px0 <- (rps/(rps-1))^nx0
 
       if ((q %% 2) == 1){ # if q is odd and q > 1
         v_x1 <- 1 - (nx0/nx)*px1
@@ -121,7 +188,10 @@ atebounds <- function(y, t, x, rps, q = 2L, permute_max = 0L, discrete = FALSE, 
     } else{
       stop("'q' must be a positive integer.")      
     }
-
+  }
+  
+  ### Obtain bound estimates ###
+  
     y1_lb <- min(y) + y1_wt*(t == 1)*(y-min(y))
     y1_ub <- max(y) + y1_wt*(t == 1)*(y-max(y))
     y1_lb <- mean(y1_lb)
@@ -165,6 +235,3 @@ atebounds <- function(y, t, x, rps, q = 2L, permute_max = 0L, discrete = FALSE, 
     outputs
 }
 
-# this code is really for continuous covariates
-# fir discrete covariates, we find unique elements and 
-# then estimate the empirical prob. mass function.
