@@ -3,3 +3,4 @@
 export(atebounds)
 export(atebounds_discrete_x)
 export(attbounds)
+export(attbounds_discrete_x)
