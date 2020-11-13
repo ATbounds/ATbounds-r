@@ -2,7 +2,7 @@
 % Please edit documentation in R/atebounds_discrete_x.R
 \name{atebounds_discrete_x}
 \alias{atebounds_discrete_x}
-\title{Bounding the average treatment effect with discrete covariates}
+\title{Bounding the average treatment effect (ATE) with discrete covariates}
 \usage{
 atebounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE, small_c = 1e-08)
 }
@@ -15,7 +15,7 @@ atebounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE, small_c = 1e-08)
 
 \item{rps}{n-dimensional vector of reference propensity scores}
 
-\item{Q}{maximal polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)}
+\item{Q}{polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)}
 
 \item{studentize}{TRUE if X is studentized elementwise and FALSE if not (default: TRUE)}
 
@@ -32,7 +32,7 @@ An S3 object of type "ATbounds". The object has the following elements.
 \item{ate_rps}{the point estimate of ATE using the reference propensity scores}
 }
 \description{
-Bounds the average treatment effect under the unconfoundedness assumption without the overlap condition.
+Bounds the average treatment effect (ATE) under the unconfoundedness assumption without the overlap condition.
 This command is for the case when all the covariates are discrete.
 }
 \examples{

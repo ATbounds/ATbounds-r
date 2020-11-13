@@ -110,10 +110,10 @@ Using this reference propensity score, the average treatment effect is obtained 
 We now introduce our bounds. 
 
 ```{r}
-  bns_nsw <- atebounds(Y, D, X, rps, q = 2, permute_max = 500)
+  bns_nsw <- atebounds(Y, D, X, rps, Q = 2, n_permute = 500)
 ```
 
-In implementing `atebounds`, the default choice of the polynomial order `q` is $q = 2$, which uses the nearest neighbor excluding own observations. The $k$-nearest neighbor estimator is used when $q = k+1$. Here, the nearest neighbor for observation $i$ is always its own observation $i$. We use the R package [FNN](https://CRAN.R-project.org/package=FNN) to carry out k-nearest neighbor search. When there are ties, the ordering of the observations may matter. To avoid this issue, we permute the dataset `permute_max` number of times and take the average of the estimates of the bounds. The default choice of `permute_max = 0`, under which there is no permutation. 
+In implementing `atebounds`, the default choice of the polynomial order `q` is $Q = 2$, which uses the nearest neighbor excluding own observations. The $k$-nearest neighbor estimator is used when $Q = k+1$. Here, the nearest neighbor for observation $i$ is always its own observation $i$. We use the R package [FNN](https://CRAN.R-project.org/package=FNN) to carry out k-nearest neighbor search. When there are ties, the ordering of the observations may matter. To avoid this issue, we permute the dataset `n_permute` number of times and take the average of the estimates of the bounds. The default choice of `n_permute = 0`, under which there is no permutation. 
 
 There are two more options which are not used above:
 
@@ -136,7 +136,7 @@ The output list contains:
 * `ate_ub`: the upper bound of ATE, i.e. $\mathbb{E}[Y(1) - Y(0)]$,
 * `ate_rps`: the point estimate of ATE using the reference propensity score
  
-With $q=2$, the bounds for ATE is
+With $Q=2$, the bounds for ATE is
 ```{r}
 print(c(bns_nsw$ate_lb,bns_nsw$ate_ub))
 ```
@@ -149,26 +149,26 @@ print(ate_nswre)
 
 Thus, the upper bound is slightly smaller than the point estimate using the reference propensity score. However, their difference may not be significant given the small sample size.
 
-We now look at the case with $q=3$.
+We now look at the case with $Q=3$.
 
 ```{r}
-  bns_nsw <- atebounds(Y, D, X, rps, q = 3, permute_max = 500)
+  bns_nsw <- atebounds(Y, D, X, rps, Q = 3, n_permute = 500)
   print(c(bns_nsw$ate_lb,bns_nsw$ate_ub))
 ```
 
-With $q=3$, the bounds cross. This indicates that the ATE estimate may be a reasonable estimate. We need to develop an inference method to reach a more definite answer.
+With $Q=3$, the bounds cross. This indicates that the ATE estimate may be a reasonable estimate. We need to develop an inference method to reach a more definite answer.
 
 We now look at ATT.
 
 ```{r}
-  bns_nsw_att <- attbounds(Y, D, X, rps, q = 2, permute_max = 500)
+  bns_nsw_att <- attbounds(Y, D, X, rps, Q = 2, n_permute = 500)
   print(bns_nsw_att)
 ```
 
-We also set $q=3$.
+We also set $Q=3$.
 
 ```{r}
-  bns_nsw_att <- attbounds(Y, D, X, rps, q = 3, permute_max = 500)
+  bns_nsw_att <- attbounds(Y, D, X, rps, Q = 3, n_permute = 500)
   print(bns_nsw_att)
 ```
 
@@ -205,35 +205,35 @@ We now estimate the reference propensity score using a logit model and obtain th
 ```{r}
   lm <- stats::glm(D~X, family=binomial("logit"))
   rps <- lm$fitted.values
-  bns_psid <- atebounds(Y, D, X, rps, q = 2, permute_max = 500)
+  bns_psid <- atebounds(Y, D, X, rps, Q = 2, n_permute = 500)
   print(bns_psid)
 ```
 
 ```{r}
   lm <- stats::glm(D~X, family=binomial("logit"))
   rps <- lm$fitted.values
-  bns_psid <- atebounds(Y, D, X, rps, q = 3, permute_max = 500)
+  bns_psid <- atebounds(Y, D, X, rps, Q = 3, n_permute = 500)
   print(bns_psid)
 ```
 
-The bounds are wide and includes zero. We compare these with the Manski bounds, which can be obtained by setting $q = 1$. 
+The bounds are wide and includes zero. We compare these with the Manski bounds, which can be obtained by setting $Q = 1$. 
 
 ```{r}
-  bns_psid <- atebounds(Y, D, X, rps, q = 1, permute_max = 500)
+  bns_psid <- atebounds(Y, D, X, rps, Q = 1, n_permute = 500)
   print(bns_psid)
 ```
 
-We can see that the Manski bounds are qualitatively comparable to those with $q = 2,3$. This is interesting because the Manski bounds do not impose the unconfoundedness assumption.   
+We can see that the Manski bounds are qualitatively comparable to those with $Q = 2,3$. This is interesting because the Manski bounds do not impose the unconfoundedness assumption.   
 
 Finally, we obtain the bounds for the average treatment effect on the treated (ATT).
 
 ```{r}
-  bns_psid_att <- attbounds(Y, D, X, rps, q = 2, permute_max = 500)
+  bns_psid_att <- attbounds(Y, D, X, rps, Q = 2, n_permute = 500)
   print(bns_psid_att)
 ```
 
 ```{r}
-  bns_psid_att <- attbounds(Y, D, X, rps, q = 3, permute_max = 500)
+  bns_psid_att <- attbounds(Y, D, X, rps, Q = 3, n_permute = 500)
   print(bns_psid_att)
   detach(psid)
 ```

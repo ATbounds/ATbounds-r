@@ -2,39 +2,24 @@
 % Please edit documentation in R/atebounds.R
 \name{atebounds}
 \alias{atebounds}
-\title{Bounding the average treatment effect}
+\title{Bounding the average treatment effect (ATE)}
 \usage{
-atebounds(
-  y,
-  t,
-  x,
-  rps,
-  q = 2L,
-  permute_max = 0L,
-  discrete = FALSE,
-  studentize = TRUE,
-  small_c = 1e-08
-)
+atebounds(Y, D, X, rps, Q = 2L, n_permute = 0L, studentize = TRUE)
 }
 \arguments{
-\item{y}{n-dimensional vector of binary outcomes}
+\item{Y}{n-dimensional vector of binary outcomes}
 
-\item{t}{n-dimensional vector of binary treatments}
+\item{D}{n-dimensional vector of binary treatments}
 
-\item{x}{n by p matrix of covariates}
+\item{X}{n by p matrix of covariates}
 
 \item{rps}{n-dimensional vector of reference propensity scores}
 
-\item{q}{polynomial order (default: q = 2, which uses the nearest neighbor excluding own observations)}
+\item{Q}{polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)}
 
-\item{permute_max}{maximum number of permutations to shuffle the data (default: 0)}
-
-\item{discrete}{TRUE if x includes only discrete covariates and FALSE if not (default: FALSE)}
+\item{n_permute}{number of permutations to shuffle the data (default: 0)}
 
 \item{studentize}{TRUE if x is studentized elementwise and FALSE if not (default: TRUE)}
-
-\item{small_c}{a small positive constant to determine the two covariate vectors are identical (default: 1e-8). 
-This constatn is only used when the option 'discrete' is TRUE.}
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.
@@ -44,17 +29,17 @@ An S3 object of type "ATbounds". The object has the following elements.
 \item{y0_ub}{the upper bound of the average of Y(0), i.e. E[Y(0)]}
 \item{ate_lb}{the lower bound of ATE, i.e. E[Y(1) - Y(0)]}
 \item{ate_ub}{the upper bound of ATE, i.e. E[Y(1) - Y(0)]}
-\item{ate_rps}{the point estimate of ATE using the reference propensity score}
+\item{ate_rps}{the point estimate of ATE using the reference propensity scores}
 }
 \description{
-Bounds the average treatment effect under the unconfoundedness assumption without the overlap condition
+Bounds the average treatment effect (ATE) under the unconfoundedness assumption without the overlap condition
 }
 \examples{
   Y <- RHC[,"survival"]
   D <- RHC[,"RHC"]
   X <- RHC[,-c(1,2)]
   rps <- rep(mean(D),length(D))  
-  results_ate <- atebounds(Y, D, X, rps, q = 3)
+  results_ate <- atebounds(Y, D, X, rps, Q = 3)
 
 }
 \references{

@@ -1,13 +1,13 @@
-#' @title Bounding the average treatment effect with discrete covariates 
+#' @title Bounding the average treatment effect (ATE) with discrete covariates 
 #'
-#' @description Bounds the average treatment effect under the unconfoundedness assumption without the overlap condition.
+#' @description Bounds the average treatment effect (ATE) under the unconfoundedness assumption without the overlap condition.
 #' This command is for the case when all the covariates are discrete.
 #'
 #' @param Y n-dimensional vector of binary outcomes
 #' @param D n-dimensional vector of binary treatments
 #' @param X n by p matrix of covariates
 #' @param rps n-dimensional vector of reference propensity scores
-#' @param Q maximal polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)
+#' @param Q polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)
 #' @param studentize TRUE if X is studentized elementwise and FALSE if not (default: TRUE)
 #' @param small_c a small positive constant to determine the two covariate vectors are identical (default: 1e-8)
 #' 

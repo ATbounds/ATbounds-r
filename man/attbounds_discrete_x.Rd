@@ -15,7 +15,7 @@ attbounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE, small_c = 1e-08)
 
 \item{rps}{n-dimensional vector of reference propensity scores}
 
-\item{Q}{maximal polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)}
+\item{Q}{polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)}
 
 \item{studentize}{TRUE if X is studentized elementwise and FALSE if not (default: TRUE)}
 
@@ -23,8 +23,8 @@ attbounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE, small_c = 1e-08)
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.
-\item{att_lb}{the lower bound of ATT, i.e. E[Y(1) - Y(0) | T = 1]}
-\item{att_ub}{the upper bound of ATT, i.e. E[Y(1) - Y(0) | T = 1]}
+\item{att_lb}{the lower bound of ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+\item{att_ub}{the upper bound of ATT, i.e. E[Y(1) - Y(0) | D = 1]}
 \item{att_rps}{the point estimate of ATT using the reference propensity scores}
 }
 \description{

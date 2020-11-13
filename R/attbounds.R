@@ -1,121 +1,108 @@
-#' @title Bounding the average treatment effect on the treated
+#' @title Bounding the average treatment effect on the treated (ATT)
 #'
-#' @description Bounds the average treatment effect on the treated under the unconfoundedness assumption without the overlap condition
+#' @description Bounds the average treatment effect on the treated (ATT) under the unconfoundedness assumption without the overlap condition
 #'
-#' @param y n-dimensional vector of binary outcomes
-#' @param t n-dimensional vector of binary treatments
-#' @param x n by p matrix of covariates
+#' @param Y n-dimensional vector of binary outcomes
+#' @param D n-dimensional vector of binary treatments
+#' @param X n by p matrix of covariates
 #' @param rps n-dimensional vector of reference propensity scores
-#' @param q polynomial order (default: q = 2, which uses the nearest neighbor excluding own observations)
-#' @param permute_max maximum number of permutations to shuffle the data (default: 0)
-#' @param discrete TRUE if x includes only discrete covariates and FALSE if not (default: FALSE)
+#' @param Q polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)
+#' @param n_permute number of permutations to shuffle the data (default: 0)
 #' @param studentize TRUE if x is studentized elementwise and FALSE if not (default: TRUE)
-#' @param small_c a small positive constant to determine the two covariate vectors are identical (default: 1e-8)
-#' This constatn is only used when the option 'discrete' is TRUE. 
 #' 
 #' @return An S3 object of type "ATbounds". The object has the following elements.
-#' \item{lb}{the lower bound of ATT, i.e. E[Y(1) - Y(0) | T = 1]}
-#' \item{ub}{the upper bound of ATT, i.e. E[Y(1) - Y(0) | T = 1]}
-#' \item{att_rps}{the point estimate of ATT using the reference propensity score}
+#' \item{lb}{the lower bound of ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+#' \item{ub}{the upper bound of ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+#' \item{att_rps}{the point estimate of ATT using the reference propensity scores}
 #' 
 #' @examples
 #'   Y <- RHC[,"survival"]
 #'   D <- RHC[,"RHC"]
 #'   X <- RHC[,-c(1,2)]
 #'   rps <- rep(mean(D),length(D))  
-#'   results_att <- attbounds(Y, D, X, rps, q = 3)
+#'   results_att <- attbounds(Y, D, X, rps, Q = 3)
 #'
 #' @references Sokbae Lee and Martin Weidner. Bounding Treatment Effects by Pooling Limited Information across Observations.
 #'
 #' @export
-attbounds <- function(y, t, x, rps, q = 2L, permute_max = 0, discrete = FALSE, studentize = TRUE, small_c = 1e-8){
+attbounds <- function(Y, D, X, rps, Q = 2L, n_permute = 0, studentize = TRUE){
     
-    # Studentize covariates elementwise
+  X <- as.matrix(X)
+  n <- nrow(X)
+  
+  # Studentize covariates elementwise
+  
+  if (studentize == TRUE){
+    sd_x <- apply(X,2,stats::sd)
+    sd_x <- matrix(sd_x,nrow=ncol(X),ncol=n)
+    m_x <- apply(X,2,mean)
+    m_x <- matrix(m_x,nrow=ncol(X),ncol=n)
+    X <- (X-t(m_x))/t(sd_x) 
+  }     
+  
+  ### ATT estimation using reference propensity scores  ###    
+  
+  rps_wt <- rps/(1-rps)      
+  att_rps <- sum(D*Y-rps_wt*(1-D)*Y)/sum(D)    
     
-    x <- as.matrix(x)
-    n <- nrow(x)
-    
-    if (studentize == TRUE){
+  results <- {}
 
-      sd_x <- apply(x,2,stats::sd)
-      sd_x <- matrix(sd_x,nrow=ncol(x),ncol=n)
-      m_x <- apply(x,2,mean)
-      m_x <- matrix(m_x,nrow=ncol(x),ncol=n)
-      x <- (x-t(m_x))/t(sd_x) 
-    }     
-    
-    results <- {}
-    
-    # Reorder the sample to break ties in random permutation to shuffle the data 
-    
-    for (j in 0:permute_max){
+    # Reorder the sample to break ties
+
+    for (j in 0:n_permute){
       
-      if ( permute_max > 0){    
+      if ( n_permute > 0){    
         
-        data <- cbind(y,t,x,rps)
-        n <- nrow(data)  
+        data <- cbind(Y,D,X,rps)
         data <- data[sample.int(n,n),] # random permutation to shuffle the data  
-        y <- data[,1]
-        t <- data[,2]
-        x <- data[,(3:(ncol(data)-1))]
+        Y <- data[,1]
+        D <- data[,2]
+        X <- data[,(3:(ncol(data)-1))]
         rps <- data[,ncol(data)]
       }  
 
-  ### ATT estimation using reference propensity scores  ###    
-        
-  rps_wt <- rps/(1-rps)      
-  att_rps <- sum(t*y-rps_wt*(1-t)*y)/sum(t)    
+
       
-  ### Nearest neighbor estimation ###
+  ### Computing weights with continuous and discrete covariates ###
 
-  nn_data <- FNN::get.knnx(x, x, k=q)
-  nn_i <- nn_data$nn.index
-  nn_d <- nn_data$nn.dist
+      if (Q == 1){
+        att_wt <- 0
+    
+      } else if (Q > 1){
+  
+      nn_data <- FNN::get.knnx(X, X, k=Q)
+      nn_i <- nn_data$nn.index
+      nn_d <- nn_data$nn.dist
 
-  nn_t <- {}
-  for (k in 1:ncol(nn_i)){
-    nn_t <- cbind(nn_t, t[nn_i[,k]])
-  }
+      nn_t <- {} # n by Q matrix of treatment values for NN estimation
+      for (k in 1:ncol(nn_i)){
+          nn_t <- cbind(nn_t, D[nn_i[,k]])
+      }
 
-  if (discrete == TRUE){
-    nx <- rowSums(nn_d < small_c)
-    nx1 <- rowSums(nn_t*(nn_d < small_c))
-  } else if (discrete == FALSE){
-    nx <- q
-    nx1 <- rowSums(nn_t)
-  }
-  else {
-    stop("'discrete' must be either TRUE or FALSE.")
-  }
+      nx <- Q
+      nx1 <- rowSums(nn_t)
+      nx0 <- nx - nx1
+      pxr <- rps/(rps-1)
 
-
-  nx0 <- nx - nx1
-  pxr <- rps/(rps-1)
-
-  ### Computing weights and obtain bound estimates ###
-
-    if (q == 1){
-      rps_wt_nn <- 0
-    } else if (q > 1){
-
-      if ((q %% 2) == 1){ # if q is odd and q > 1
+      if ((Q %% 2) == 1){ # if Q is odd and Q > 1
         v_x <- nx1 - nx1*(pxr^nx0)
-      } else if ((q %% 2) == 0){ # q is even
+      } else if ((Q %% 2) == 0){ # Q is even
         v_x <- nx1 - nx*(pxr^nx0)
       } else{
-        stop("'q' must be a positive integer.")      
+        stop("'Q' must be a positive integer.")      
       }  
       
       nx0c <- nx0 + (nx0 == 0L)
-      rps_wt_nn <- -v_x/nx0c
+      att_wt <- v_x/nx0c
+      
     } else{
-      stop("'q' must be a positive integer.")      
+      stop("'Q' must be a positive integer.")      
     }
 
-    att_lb <- t*(y-max(y)) + rps_wt_nn*(1-t)*(y-max(y))
-    att_ub <- t*(y-min(y)) + rps_wt_nn*(1-t)*(y-min(y))
-    att_lb <- sum(att_lb)/sum(t)
-    att_ub <- sum(att_ub)/sum(t)
+    att_lb <- D*(Y-max(Y)) - att_wt*(1-D)*(Y-max(Y))
+    att_ub <- D*(Y-min(Y)) - att_wt*(1-D)*(Y-min(Y))
+    att_lb <- sum(att_lb)/sum(D)
+    att_ub <- sum(att_ub)/sum(D)
 
     result <- matrix(NA, nrow = 1, ncol = 2) 
     result <- c(att_lb, att_ub)
@@ -124,11 +111,6 @@ attbounds <- function(y, t, x, rps, q = 2L, permute_max = 0, discrete = FALSE, s
     }
     
     est <- apply(results,2,mean)
-    
-    if (FALSE){
-    att_lb <- est[1]*(est[1] <= est[2]) + att_rps*(est[1] > est[2])
-    att_ub <- est[2]*(est[1] <= est[2]) + att_rps*(est[1] > est[2])
-    }
     
     att_lb <- est[1]
     att_ub <- est[2]

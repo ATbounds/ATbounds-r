@@ -40,39 +40,39 @@ reference propensity scores uniformly for all observations. Of course, this is l
   rps <- rep(mean(D),length(D))  
 ```
 
-We start with $q=1$. 
+We start with $Q=1$. 
 
 ```{r}
-  atebounds(Y, D, X, rps, q = 1)
+  atebounds(Y, D, X, rps, Q = 1)
 ```
 
-We now consider $q=2$ 
+We now consider $Q=2$ 
 
 ```{r}
-  atebounds(Y, D, X, rps, q = 2)
+  atebounds(Y, D, X, rps, Q = 2)
 ```
 
-and $q=3$. 
+and $Q=3$. 
 
 ```{r}
-  atebounds(Y, D, X, rps, q = 3)
+  atebounds(Y, D, X, rps, Q = 3)
 ```
 
-Finally, we take a relatively large $q = 10$.
+Finally, we take a relatively large $Q = 10$.
 
 ```{r}
-  atebounds(Y, D, X, rps, q = 10)
+  atebounds(Y, D, X, rps, Q = 10)
 ```
 
 
 ## Bounding the Average Treatment Effect on the Treated
 
-We now look at ATT with a few values of $q$.
+We now look at ATT with a few values of $Q$.
 
 ```{r}
-  attbounds(Y, D, X, rps, q = 3)
-  attbounds(Y, D, X, rps, q = 5)
-  attbounds(Y, D, X, rps, q = 10)
+  attbounds(Y, D, X, rps, Q = 3)
+  attbounds(Y, D, X, rps, Q = 5)
+  attbounds(Y, D, X, rps, Q = 10)
   
 ```
 
