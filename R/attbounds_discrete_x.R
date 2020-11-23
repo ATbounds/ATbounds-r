@@ -1,6 +1,6 @@
-#' @title Bounding the average treatment effect on the treated with discrete covariates 
+#' @title Bounding the average treatment effect on the treated (ATT) with discrete covariates 
 #'
-#' @description Bounds the average treatment effect on the treated under the unconfoundedness assumption without the overlap condition.
+#' @description Bounds the average treatment effect on the treated (ATT) under the unconfoundedness assumption without the overlap condition.
 #' This command is for the case when all the covariates are discrete.
 #'
 #' @param Y n-dimensional vector of binary outcomes
@@ -12,8 +12,8 @@
 #' @param small_c a small positive constant to determine the two covariate vectors are identical (default: 1e-8)
 #' 
 #' @return An S3 object of type "ATbounds". The object has the following elements.
-#' \item{att_lb}{the lower bound of ATT, i.e. E[Y(1) - Y(0) | D = 1]}
-#' \item{att_ub}{the upper bound of ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+#' \item{att_lb}{the lower bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+#' \item{att_ub}{the upper bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
 #' \item{att_rps}{the point estimate of ATT using the reference propensity scores}
 #' 
 #' @examples
@@ -58,7 +58,7 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE, small_
       
       att_wt <- rep(NA,n)
 
-      for (i in 1:n){ # this step may not be fast if n is very large
+      for (i in 1:n){ # this loop may not be fast if n is very large
         
         xi <- t(matrix(X[i,],nrow=ncol(X),ncol=n))      
         dist <- sqrt(rowSums((X-xi)^2))
@@ -85,7 +85,7 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE, small_
             term_x0 <- (1/choose(nx,qq))*choose(nx0,k)*choose(nx-nx0,qq-k)
             
           } else{
-            stop("'Q' must be a positive integer.")      
+            stop("'min(q,nx)' must be a positive integer.")      
           }  
           
           omega0 <- px0k*term_x0
@@ -94,6 +94,10 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE, small_
           
         }
       
+        # the second term (nx0 == 0L) is added to ensure that
+        # att_wt is well defined. However, nx0 is always 
+        # strictly positive if D == 0. 
+        
         nx0c <- nx0 + (nx0 == 0L)      
 
         att_wt[i] <- v_x0/nx0c  

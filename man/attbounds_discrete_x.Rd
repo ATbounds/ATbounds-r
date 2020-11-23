@@ -2,7 +2,7 @@
 % Please edit documentation in R/attbounds_discrete_x.R
 \name{attbounds_discrete_x}
 \alias{attbounds_discrete_x}
-\title{Bounding the average treatment effect on the treated with discrete covariates}
+\title{Bounding the average treatment effect on the treated (ATT) with discrete covariates}
 \usage{
 attbounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE, small_c = 1e-08)
 }
@@ -23,12 +23,12 @@ attbounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE, small_c = 1e-08)
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.
-\item{att_lb}{the lower bound of ATT, i.e. E[Y(1) - Y(0) | D = 1]}
-\item{att_ub}{the upper bound of ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+\item{att_lb}{the lower bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+\item{att_ub}{the upper bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
 \item{att_rps}{the point estimate of ATT using the reference propensity scores}
 }
 \description{
-Bounds the average treatment effect on the treated under the unconfoundedness assumption without the overlap condition.
+Bounds the average treatment effect on the treated (ATT) under the unconfoundedness assumption without the overlap condition.
 This command is for the case when all the covariates are discrete.
 }
 \examples{

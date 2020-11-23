@@ -23,16 +23,16 @@ atebounds(Y, D, X, rps, Q = 2L, n_permute = 0L, studentize = TRUE)
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.
-\item{y1_lb}{the lower bound of the average of Y(1), i.e. E[Y(1)]}
-\item{y1_ub}{the upper bound of the average of Y(1), i.e. E[Y(1)]}
-\item{y0_lb}{the lower bound of the average of Y(0), i.e. E[Y(0)]}
-\item{y0_ub}{the upper bound of the average of Y(0), i.e. E[Y(0)]}
-\item{ate_lb}{the lower bound of ATE, i.e. E[Y(1) - Y(0)]}
-\item{ate_ub}{the upper bound of ATE, i.e. E[Y(1) - Y(0)]}
+\item{y1_lb}{the lower bound on the average of Y(1), i.e. E[Y(1)]}
+\item{y1_ub}{the upper bound on the average of Y(1), i.e. E[Y(1)]}
+\item{y0_lb}{the lower bound on the average of Y(0), i.e. E[Y(0)]}
+\item{y0_ub}{the upper bound on the average of Y(0), i.e. E[Y(0)]}
+\item{ate_lb}{the lower bound on ATE, i.e. E[Y(1) - Y(0)]}
+\item{ate_ub}{the upper bound on ATE, i.e. E[Y(1) - Y(0)]}
 \item{ate_rps}{the point estimate of ATE using the reference propensity scores}
 }
 \description{
-Bounds the average treatment effect (ATE) under the unconfoundedness assumption without the overlap condition
+Bounds the average treatment effect (ATE) under the unconfoundedness assumption without the overlap condition.
 }
 \examples{
   Y <- RHC[,"survival"]

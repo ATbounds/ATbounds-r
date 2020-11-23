@@ -11,8 +11,8 @@
 #' @param studentize TRUE if x is studentized elementwise and FALSE if not (default: TRUE)
 #' 
 #' @return An S3 object of type "ATbounds". The object has the following elements.
-#' \item{lb}{the lower bound of ATT, i.e. E[Y(1) - Y(0) | D = 1]}
-#' \item{ub}{the upper bound of ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+#' \item{lb}{the lower bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+#' \item{ub}{the upper bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
 #' \item{att_rps}{the point estimate of ATT using the reference propensity scores}
 #' 
 #' @examples

@@ -12,12 +12,12 @@
 #' @param small_c a small positive constant to determine the two covariate vectors are identical (default: 1e-8)
 #' 
 #' @return An S3 object of type "ATbounds". The object has the following elements.
-#' \item{y1_lb}{the lower bound of the average of Y(1), i.e. E[Y(1)]}
-#' \item{y1_ub}{the upper bound of the average of Y(1), i.e. E[Y(1)]}
-#' \item{y0_lb}{the lower bound of the average of Y(0), i.e. E[Y(0)]}
-#' \item{y0_ub}{the upper bound of the average of Y(0), i.e. E[Y(0)]}
-#' \item{ate_lb}{the lower bound of ATE, i.e. E[Y(1) - Y(0)]}
-#' \item{ate_ub}{the upper bound of ATE, i.e. E[Y(1) - Y(0)]}
+#' \item{y1_lb}{the lower bound on the average of Y(1), i.e. E[Y(1)]}
+#' \item{y1_ub}{the upper bound on the average of Y(1), i.e. E[Y(1)]}
+#' \item{y0_lb}{the lower bound on the average of Y(0), i.e. E[Y(0)]}
+#' \item{y0_ub}{the upper bound on the average of Y(0), i.e. E[Y(0)]}
+#' \item{ate_lb}{the lower bound on ATE, i.e. E[Y(1) - Y(0)]}
+#' \item{ate_ub}{the upper bound on ATE, i.e. E[Y(1) - Y(0)]}
 #' \item{ate_rps}{the point estimate of ATE using the reference propensity scores}
 #' 
 #' @examples
@@ -63,7 +63,7 @@ atebounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE, small_
       y1_wt <- rep(NA,n)
       y0_wt <- rep(NA,n)
       
-      for (i in 1:n){ # this step may not be fast if n is very large
+      for (i in 1:n){ # this loop may not be fast if n is very large
         
         xi <- t(matrix(X[i,],nrow=ncol(X),ncol=n))      
         dist <- sqrt(rowSums((X-xi)^2))
@@ -96,7 +96,7 @@ atebounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE, small_
             term_x0 <- (1/choose(nx,qq))*choose(nx0,k)*choose(nx-nx0,qq-k)
             
           } else{
-            stop("'Q' must be a positive integer.")      
+            stop("'min(q,nx)' must be a positive integer.")      
           }  
           
           omega1 <- px1k*term_x1
@@ -107,18 +107,21 @@ atebounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE, small_
           
         }
       
-        nx1c <- nx1 + (nx1 == 0L)
-        nx0c <- nx0 + (nx0 == 0L)      
-        y1_wt[i] <- nx*v_x1/nx1c
-        y0_wt[i] <- nx*v_x0/nx0c  
+        # the second term (nx1 == 0L) is added to ensure that
+        # y1_wt is well defined. However, nx1 is always 
+        # strictly positive if D == 1. The same applies to 
+        # (nx0 == 0L). 
         
+        nx1c <- nx1 + (nx1 == 0L) 
+        nx0c <- nx0 + (nx0 == 0L)      
+        y1_wt[i] <- nx*v_x1/nx1c 
+        y0_wt[i] <- nx*v_x0/nx0c  
       } 
       
     } else{
       stop("'Q' must be a positive integer.")      
     }
 
-  
   ### Obtain bound estimates ###
   
     y1_lb <- min(Y) + y1_wt*(D == 1)*(Y-min(Y))

@@ -23,8 +23,8 @@ attbounds(Y, D, X, rps, Q = 2L, n_permute = 0, studentize = TRUE)
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.
-\item{lb}{the lower bound of ATT, i.e. E[Y(1) - Y(0) | D = 1]}
-\item{ub}{the upper bound of ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+\item{lb}{the lower bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+\item{ub}{the upper bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
 \item{att_rps}{the point estimate of ATT using the reference propensity scores}
 }
 \description{
