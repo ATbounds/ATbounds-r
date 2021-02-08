@@ -122,6 +122,8 @@ atebounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE, small_
       stop("'Q' must be a positive integer.")      
     }
 
+  # need to add inference
+  
   ### Obtain bound estimates ###
   
     y1_lb <- min(Y) + y1_wt*(D == 1)*(Y-min(Y))
