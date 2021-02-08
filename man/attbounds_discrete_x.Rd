@@ -4,7 +4,7 @@
 \alias{attbounds_discrete_x}
 \title{Bounding the average treatment effect on the treated (ATT) with discrete covariates}
 \usage{
-attbounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE, small_c = 1e-08)
+attbounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE)
 }
 \arguments{
 \item{Y}{n-dimensional vector of binary outcomes}
@@ -18,8 +18,6 @@ attbounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE, small_c = 1e-08)
 \item{Q}{polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)}
 
 \item{studentize}{TRUE if X is studentized elementwise and FALSE if not (default: TRUE)}
-
-\item{small_c}{a small positive constant to determine the two covariate vectors are identical (default: 1e-8)}
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.

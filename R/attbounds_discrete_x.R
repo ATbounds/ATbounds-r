@@ -9,7 +9,6 @@
 #' @param rps n-dimensional vector of reference propensity scores
 #' @param Q polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)
 #' @param studentize TRUE if X is studentized elementwise and FALSE if not (default: TRUE)
-#' @param small_c a small positive constant to determine the two covariate vectors are identical (default: 1e-8)
 #' 
 #' @return An S3 object of type "ATbounds". The object has the following elements.
 #' \item{att_lb}{the lower bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
@@ -28,11 +27,14 @@
 #' @references Sokbae Lee and Martin Weidner. Bounding Treatment Effects by Pooling Limited Information across Observations.
 #'
 #' @export
-attbounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE, small_c = 1e-8){
+attbounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE){
 
   X <- as.matrix(X)
   n <- nrow(X)
-
+  
+  ymin <- min(Y)
+  ymax <- max(Y)
+  
   # Studentize covariates elementwise  
     
   if (studentize == TRUE){
@@ -56,24 +58,38 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE, small_
 
     } else if (Q > 1){
       
-      att_wt <- rep(NA,n)
-
-      for (i in 1:n){ # this loop may not be fast if n is very large
+      Xunique <- mgcv::uniquecombs(X)      # A matrix of unique rows from X
+      ind_Xunique <- attr(Xunique,"index")  # An index vector that the same dimension as that of X
+      
+      mx <- nrow(Xunique) # number of unique rows 
+      
+      res <- matrix(NA,nrow=mx,ncol=2)
+      
+      for (i in 1:mx){ # this loop may not be fast if mx is very large
         
-        xi <- t(matrix(X[i,],nrow=ncol(X),ncol=n))      
-        dist <- sqrt(rowSums((X-xi)^2))
-        dist_ind <- (dist < small_c)
-        nx <- sum(dist_ind)    # number of obs. such that X_i = x for each row of x
-        nx1 <- sum(D*dist_ind) # number of obs. such that X_i = x and D_i = 1 for each row of x
+        disc_ind <- (ind_Xunique == i) 
+        nx <- sum(disc_ind)    # number of obs. such that X_i = x for each row of x
+        nx1 <- sum(D*disc_ind) # number of obs. such that X_i = x and D_i = 1 for each row of x
         nx0 <- nx - nx1        # number of obs. such that X_i = x and D_i = 0 for each row of x
+        
+        nx0 <- nx0 + (nx0 == 0) # replace nx0 with 1 when it is zero to avoid NaN 
+        
+        y0bar <- (sum((1-D)*Y*disc_ind)/nx0) # Dividing by zero never occurs because the numerator is zero whenever nx0 is zero 
         
         qq <- min(Q,nx)
         k_upper <- 2*floor(qq/2)
         v_x0 <- nx1
         
         for (k in 0:k_upper){
+
+          rps_x <- rps[disc_ind]
+          rps_x <- unique(rps_x)
           
-          px0k <- (rps[i]/(rps[i]-1))^k
+          if (length(rps_x) > 1){
+            stop("The reference propensity score should be unique for the same value of x.")   
+          }          
+          
+          px0k <- (rps_x/(rps_x-1))^k
           omega0 <- px0k
           
           if ((qq %% 2) == 1){ # if min(q,nx) is odd
@@ -94,13 +110,8 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE, small_
           
         }
       
-        # the second term (nx0 == 0L) is added to ensure that
-        # att_wt is well defined. However, nx0 is always 
-        # strictly positive if D == 0. 
-        
-        nx0c <- nx0 + (nx0 == 0L)      
-
-        att_wt[i] <- v_x0/nx0c  
+        res[i,1] <- (mx/n)*(v_x0*(y0bar - ymax))
+        res[i,2] <- (mx/n)*(v_x0*(y0bar - ymin))
         
       } 
       
@@ -110,10 +121,9 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE, small_
 
   ### Obtain bound estimates ###
   
-  att_lb <- D*(Y-max(Y)) - att_wt*(1-D)*(Y-max(Y))
-  att_ub <- D*(Y-min(Y)) - att_wt*(1-D)*(Y-min(Y))
-  att_lb <- sum(att_lb)/sum(D)
-  att_ub <- sum(att_ub)/sum(D)
+  est <- apply(res,2,mean)
+  att_lb <- (sum(D*Y)/sum(D) - ymax) - est[1]/mean(D)
+  att_ub <- (sum(D*Y)/sum(D) - ymin) - est[2]/mean(D)
   
   outputs = list("att_lb"=att_lb,"att_ub"=att_ub,"att_rps"=att_rps)
 
