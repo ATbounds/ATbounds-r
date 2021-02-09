@@ -9,6 +9,7 @@
 #' @param rps n-dimensional vector of reference propensity scores
 #' @param Q polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)
 #' @param studentize TRUE if X is studentized elementwise and FALSE if not (default: TRUE)
+#' @param alpha (1-alpha) nominal coverage probability for the confidence interval for ATE (default: 0.05)
 #' 
 #' @return An S3 object of type "ATbounds". The object has the following elements.
 #' \item{y1_lb}{the lower bound on the average of Y(1), i.e. E[Y(1)]}
@@ -18,8 +19,10 @@
 #' \item{ate_lb}{estimate of the lower bound on ATE, i.e. E[Y(1) - Y(0)]}
 #' \item{ate_ub}{estimate of the upper bound on ATE, i.e. E[Y(1) - Y(0)]}
 #' \item{ate_rps}{the point estimate of ATE using the reference propensity scores}
-#' \item{se_lb}{standard error for the estimate of the lower bound on ATE, i.e. E[Y(1) - Y(0)]}
-#' \item{se_ub}{standard error for the estimate of the upper bound on ATE, i.e. E[Y(1) - Y(0)]}
+#' \item{se_lb}{standard error for the estimate of the lower bound on ATE}
+#' \item{se_ub}{standard error for the estimate of the upper bound on ATE}
+#' \item{ci_lb}{the lower end point of the confidence interval for ATE}
+#' \item{ci_ub}{the upper end point of the confidence interval for ATE}
 #' 
 #' @examples
 #'   Y <- RHC[,"survival"]
@@ -33,7 +36,7 @@
 #' @references Sokbae Lee and Martin Weidner. Bounding Treatment Effects by Pooling Limited Information across Observations.
 #'
 #' @export
-atebounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE){
+atebounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE, alpha = 0.05){
 
   X <- as.matrix(X)
   n <- nrow(X)
@@ -152,8 +155,26 @@ atebounds_discrete_x <- function(Y, D, X, rps, Q = 2L, studentize = TRUE){
   se_lb <- stats::sd(Lx)/sqrt(mx)
   se_ub <- stats::sd(Ux)/sqrt(mx)
   
+  two_sided <- 1-alpha/2
+  ci1_lb <- ate_lb - qnorm(two_sided)*se_lb
+  ci1_ub <- ate_ub + qnorm(two_sided)*se_ub
+  
+  ate_star <- (se_ub*ate_lb + se_lb*ate_ub)/(se_lb + se_ub)
+  se_star <- 2*(se_lb*se_ub)/(se_lb + se_ub) # This corresponds to rho=1 in Stoye (2020)
+  ci2_lb <- ate_star - qnorm(two_sided)*se_star
+  ci2_ub <- ate_star + qnorm(two_sided)*se_star
+  
+  if (ci1_lb <= ci1_ub){ # if the first confidence interval is non-empty
+    ci_lb <- min(ci1_lb,ci2_lb)
+    ci_ub <- max(ci1_ub,ci2_ub)
+  } else {
+    ci_lb <- ci2_lb
+    ci_ub <- ci2_ub  
+  }
+  
   outputs = list("y1_lb"=y1_lb,"y1_ub"=y1_ub,"y0_lb"=y0_lb,"y0_ub"=y0_ub,
-                 "ate_lb"=ate_lb,"ate_ub"=ate_ub,"ate_rps"=ate_rps,"se_lb"=se_lb,"se_ub"=se_ub)  
+                 "ate_lb"=ate_lb,"ate_ub"=ate_ub,"ate_rps"=ate_rps,
+                 "se_lb"=se_lb,"se_ub"=se_ub,"ci_lb"=ci_lb,"ci_ub"=ci_ub)  
 
   class(outputs) = 'ATbounds'
 

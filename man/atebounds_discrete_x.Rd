@@ -4,7 +4,7 @@
 \alias{atebounds_discrete_x}
 \title{Bounding the average treatment effect (ATE) with discrete covariates}
 \usage{
-atebounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE)
+atebounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE, alpha = 0.05)
 }
 \arguments{
 \item{Y}{n-dimensional vector of binary outcomes}
@@ -18,6 +18,8 @@ atebounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE)
 \item{Q}{polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)}
 
 \item{studentize}{TRUE if X is studentized elementwise and FALSE if not (default: TRUE)}
+
+\item{alpha}{(1-alpha) nominal coverage probability for the confidence interval for ATE (default: 0.05)}
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.
@@ -28,8 +30,10 @@ An S3 object of type "ATbounds". The object has the following elements.
 \item{ate_lb}{estimate of the lower bound on ATE, i.e. E[Y(1) - Y(0)]}
 \item{ate_ub}{estimate of the upper bound on ATE, i.e. E[Y(1) - Y(0)]}
 \item{ate_rps}{the point estimate of ATE using the reference propensity scores}
-\item{se_lb}{standard error for the estimate of the lower bound on ATE, i.e. E[Y(1) - Y(0)]}
-\item{se_ub}{standard error for the estimate of the upper bound on ATE, i.e. E[Y(1) - Y(0)]}
+\item{se_lb}{standard error for the estimate of the lower bound on ATE}
+\item{se_ub}{standard error for the estimate of the upper bound on ATE}
+\item{ci_lb}{the lower end point of the confidence interval for ATE}
+\item{ci_ub}{the upper end point of the confidence interval for ATE}
 }
 \description{
 Bounds the average treatment effect (ATE) under the unconfoundedness assumption without the overlap condition.
