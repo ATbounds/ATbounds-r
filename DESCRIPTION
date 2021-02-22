@@ -5,15 +5,18 @@ Version: 0.1.0
 Authors@R: c(
     person("Sokbae", "Lee", email = "sl3841@columbia.edu", role = c("aut", "cre")),
     person("Martin", "Weidner", email = "", role = "aut"))
-Description: Bounding treatment effects by pooling limited information across observations.
+Description: We provide novel bounds on average treatment effects (on the treated) that are valid under an unconfoundedness assumption. 
+    Our bounds are applicable if the conditioning variables do not satisfy the overlap condition, are high-dimensional, and take on a large number of different values in the observed sample. 
+    This robustness is achieved by only using limited “pooling” of information across observations. 
+    Namely, the bounds are constructed as sample averages over functions of the observed outcomes such that the contribution of each outcome only depends on the treatment status of a limited number of observations. 
+    No information pooling across observations leads to so-called “Manski bounds”, while unlimited information pooling leads to standard inverse propensity score weighting. 
     For more details, see the paper by Lee and Weidner (2020). 
-    More to be added here in future after a working paper version is on arXiv...
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 Imports: stats, FNN, mgcv
-Suggests: knitr, rmarkdown, MASS
+Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 Depends: R (>= 2.10)
 URL: https://github.com/sokbae/ATbounds/

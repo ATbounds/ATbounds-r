@@ -4,7 +4,7 @@
 \alias{attbounds_discrete_x}
 \title{Bounding the average treatment effect on the treated (ATT) with discrete covariates}
 \usage{
-attbounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE)
+attbounds_discrete_x(Y, D, X, rps, Q = 3L, studentize = TRUE)
 }
 \arguments{
 \item{Y}{n-dimensional vector of binary outcomes}
@@ -13,17 +13,17 @@ attbounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE)
 
 \item{X}{n by p matrix of covariates}
 
-\item{rps}{n-dimensional vector of reference propensity scores}
+\item{rps}{n-dimensional vector of the reference propensity score}
 
-\item{Q}{polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)}
+\item{Q}{bandwidth parameter that determines the maximum number of observations for pooling information (default: Q = 3)}
 
 \item{studentize}{TRUE if X is studentized elementwise and FALSE if not (default: TRUE)}
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.
-\item{att_lb}{the lower bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
-\item{att_ub}{the upper bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
-\item{att_rps}{the point estimate of ATT using the reference propensity scores}
+\item{att_lb}{estimate of the lower bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+\item{att_ub}{estimate of the upper bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+\item{att_rps}{the point estimate of ATT using the reference propensity score}
 }
 \description{
 Bounds the average treatment effect on the treated (ATT) under the unconfoundedness assumption without the overlap condition.

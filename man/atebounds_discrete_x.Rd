@@ -4,7 +4,7 @@
 \alias{atebounds_discrete_x}
 \title{Bounding the average treatment effect (ATE) with discrete covariates}
 \usage{
-atebounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE, alpha = 0.05)
+atebounds_discrete_x(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.05)
 }
 \arguments{
 \item{Y}{n-dimensional vector of binary outcomes}
@@ -13,23 +13,23 @@ atebounds_discrete_x(Y, D, X, rps, Q = 2L, studentize = TRUE, alpha = 0.05)
 
 \item{X}{n by p matrix of covariates}
 
-\item{rps}{n-dimensional vector of reference propensity scores}
+\item{rps}{n-dimensional vector of the reference propensity score}
 
-\item{Q}{polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)}
+\item{Q}{bandwidth parameter that determines the maximum number of observations for pooling information (default: Q = 3)}
 
 \item{studentize}{TRUE if X is studentized elementwise and FALSE if not (default: TRUE)}
 
-\item{alpha}{(1-alpha) nominal coverage probability for the confidence interval for ATE (default: 0.05)}
+\item{alpha}{(1-alpha) nominal coverage probability for the confidence interval of ATE (default: 0.05)}
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.
-\item{y1_lb}{the lower bound on the average of Y(1), i.e. E[Y(1)]}
-\item{y1_ub}{the upper bound on the average of Y(1), i.e. E[Y(1)]}
-\item{y0_lb}{the lower bound on the average of Y(0), i.e. E[Y(0)]}
-\item{y0_ub}{the upper bound on the average of Y(0), i.e. E[Y(0)]}
+\item{y1_lb}{estimate of the lower bound on the average of Y(1), i.e. E[Y(1)]}
+\item{y1_ub}{estimate of the upper bound on the average of Y(1), i.e. E[Y(1)]}
+\item{y0_lb}{estimate of the lower bound on the average of Y(0), i.e. E[Y(0)]}
+\item{y0_ub}{estimate of the upper bound on the average of Y(0), i.e. E[Y(0)]}
 \item{ate_lb}{estimate of the lower bound on ATE, i.e. E[Y(1) - Y(0)]}
 \item{ate_ub}{estimate of the upper bound on ATE, i.e. E[Y(1) - Y(0)]}
-\item{ate_rps}{the point estimate of ATE using the reference propensity scores}
+\item{ate_rps}{the point estimate of ATE using the reference propensity score}
 \item{se_lb}{standard error for the estimate of the lower bound on ATE}
 \item{se_ub}{standard error for the estimate of the upper bound on ATE}
 \item{ci_lb}{the lower end point of the confidence interval for ATE}

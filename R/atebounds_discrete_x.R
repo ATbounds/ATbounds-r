@@ -156,13 +156,14 @@ atebounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
   se_ub <- stats::sd(Ux)/sqrt(mx)
   
   two_sided <- 1-alpha/2
-  ci1_lb <- ate_lb - qnorm(two_sided)*se_lb
-  ci1_ub <- ate_ub + qnorm(two_sided)*se_ub
+  cv_norm <- stats::qnorm(two_sided)
+  ci1_lb <- ate_lb - cv_norm*se_lb
+  ci1_ub <- ate_ub + cv_norm*se_ub
   
   ate_star <- (se_ub*ate_lb + se_lb*ate_ub)/(se_lb + se_ub)
   se_star <- 2*(se_lb*se_ub)/(se_lb + se_ub) # This corresponds to rho=1 in Stoye (2020)
-  ci2_lb <- ate_star - qnorm(two_sided)*se_star
-  ci2_ub <- ate_star + qnorm(two_sided)*se_star
+  ci2_lb <- ate_star - cv_norm*se_star
+  ci2_ub <- ate_star + cv_norm*se_star
   
   if (ci1_lb <= ci1_ub){ # if the first confidence interval is non-empty
     ci_lb <- min(ci1_lb,ci2_lb)
