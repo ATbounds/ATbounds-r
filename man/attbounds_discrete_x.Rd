@@ -4,7 +4,7 @@
 \alias{attbounds_discrete_x}
 \title{Bounding the average treatment effect on the treated (ATT) with discrete covariates}
 \usage{
-attbounds_discrete_x(Y, D, X, rps, Q = 3L, studentize = TRUE)
+attbounds_discrete_x(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.05)
 }
 \arguments{
 \item{Y}{n-dimensional vector of binary outcomes}
@@ -18,12 +18,18 @@ attbounds_discrete_x(Y, D, X, rps, Q = 3L, studentize = TRUE)
 \item{Q}{bandwidth parameter that determines the maximum number of observations for pooling information (default: Q = 3)}
 
 \item{studentize}{TRUE if X is studentized elementwise and FALSE if not (default: TRUE)}
+
+\item{alpha}{(1-alpha) nominal coverage probability for the confidence interval of ATE (default: 0.05)}
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.
 \item{att_lb}{estimate of the lower bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
 \item{att_ub}{estimate of the upper bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
 \item{att_rps}{the point estimate of ATT using the reference propensity score}
+\item{se_lb}{standard error for the estimate of the lower bound on ATT}
+\item{se_ub}{standard error for the estimate of the upper bound on ATT}
+\item{ci_lb}{the lower end point of the confidence interval for ATT}
+\item{ci_ub}{the upper end point of the confidence interval for ATT}
 }
 \description{
 Bounds the average treatment effect on the treated (ATT) under the unconfoundedness assumption without the overlap condition.

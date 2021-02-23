@@ -62,7 +62,7 @@ atebounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
 
   ### Computing weights with discrete covariates ###
   
-  Xunique <- mgcv::uniquecombs(X)      # A matrix of unique rows from X
+  Xunique <- mgcv::uniquecombs(X)       # A matrix of unique rows from X
   ind_Xunique <- attr(Xunique,"index")  # An index vector that the same dimension as that of X
   
   mx <- nrow(Xunique) # number of unique rows 
@@ -103,8 +103,8 @@ atebounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
                px1k <- ((rps_x-1)/rps_x)^k
                px0k <- (rps_x/(rps_x-1))^k
               
-               omega1 <- px1k
-               omega0 <- px0k
+               #omega1 <- px1k
+               #omega0 <- px0k
               
                if ((qq %% 2) == 1){ # if min(q,nx) is odd
                 
@@ -155,6 +155,7 @@ atebounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
   se_lb <- stats::sd(Lx)/sqrt(mx)
   se_ub <- stats::sd(Ux)/sqrt(mx)
   
+  # Stoye (2020) construction
   two_sided <- 1-alpha/2
   cv_norm <- stats::qnorm(two_sided)
   ci1_lb <- ate_lb - cv_norm*se_lb
