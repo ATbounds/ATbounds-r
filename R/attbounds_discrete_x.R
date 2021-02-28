@@ -135,7 +135,7 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
   att_ub <- est[2]/meanD
   
   # Standard errors
-  ift <- res/meanD - ((mx*nx)/n)*est/(meaD^2)
+  ift <- res/meanD - ((mx*nx)/n)*est/(meanD^2)
   se <- apply(ift,2,stats::sd)
   se_lb <- se[1]/sqrt(mx)
   se_ub <- se[2]/sqrt(mx)
