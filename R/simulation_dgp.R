@@ -1,31 +1,31 @@
-#' @title Bounding the average treatment effect on the treated (ATT)
+#' @title Simulating observations from the data-generating process considered in Lee and Weidner (2021)
 #'
-#' @description Bounds the average treatment effect on the treated (ATT) under the unconfoundedness assumption without the overlap condition
+#' @description Simulates observations from the data-generating process considered in Lee and Weidner (2021)
 #'
-#' @param Y n-dimensional vector of binary outcomes
-#' @param D n-dimensional vector of binary treatments
-#' @param X n by p matrix of covariates
-#' @param rps n-dimensional vector of reference propensity scores
-#' @param Q polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)
-#' @param n_permute number of permutations to shuffle the data (default: 0)
-#' @param studentize TRUE if x is studentized elementwise and FALSE if not (default: TRUE)
+#' @param n sample size
+#' @param ps_spec specification of the propensity score: "overlap" or "non-overlap" (default: "overlap")
+#' @param x_discrete TRUE if the distribution of the covariate is uniform on {-3.0, -2.9, ..., 3.0} and
+#'  FALSE if the distribution of the covariate is uniform on [--3,3] (default: FALSE)
 #' 
 #' @return An S3 object of type "ATbounds". The object has the following elements.
-#' \item{lb}{the lower bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
-#' \item{ub}{the upper bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
-#' \item{att_rps}{the point estimate of ATT using the reference propensity scores}
+#' \item{outcome}{n observations of binary outcomes}
+#' \item{treat}{n observations of binary treatments}
+#' \item{covariate}{n observations of a scalar covariate}
+#' \item{ate_oracle}{the sample analog of E[Y(1) - Y(0)]}
+#' \item{att_oracle}{the sample analog of E[D{Y(1) - Y(0)}|D=1]}
 #' 
 #' @examples
-#'   Y <- RHC[,"survival"]
-#'   D <- RHC[,"RHC"]
-#'   X <- RHC[,-c(1,2)]
-#'   rps <- rep(mean(D),length(D))  
-#'   results_att <- attbounds(Y, D, X, rps, Q = 3)
+#'   data <- simulation_dgp(100, ps_spec = "overlap")
+#'   y <- data$outcome
+#'   d <- data$treat
+#'   x <- data$covariate
+#'   ate <- data$ate_oracle
+#'   att <- data$att_oracle
 #'
 #' @references Sokbae Lee and Martin Weidner. Bounding Treatment Effects by Pooling Limited Information across Observations.
 #'
 #' @export
-simulation_dgp <- function(n, ps_spec = "overlap", X, rps, Q = 2L,x_discrete = TRUE, studentize = TRUE){
+simulation_dgp <- function(n, ps_spec = "overlap", x_discrete = FALSE){
     
   x <- runif(n, min = -3, max = 3)
   
@@ -50,11 +50,8 @@ simulation_dgp <- function(n, ps_spec = "overlap", X, rps, Q = 2L,x_discrete = T
   
   y <- treat*y_1 + (1-treat)*y_0
   
-  y1 <- treat*y
-  y0 <- (1-treat)*y
-  
-  ate_oracle <- mean(y1 - y0)
-  att_oracle <- mean(treat*(y1-y0))/mean(ps)
+  ate_oracle <- mean(y_1 - y_0)
+  att_oracle <- mean(treat*(y_1-y_0))/mean(ps)
   
   outputs <- list("outcome"=y,"treat"=treat,"covariate"=x,
                   "ate_oracle"=ate_oracle,"att_oracle"=att_oracle)
