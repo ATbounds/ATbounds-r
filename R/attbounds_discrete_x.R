@@ -129,14 +129,16 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
   
   ### Obtain bound estimates ###
   
+  meanD <- mean(D)
   est <- apply(res,2,mean)
-  att_lb <- est[1]/mean(D)
-  att_ub <- est[2]/mean(D)
-
-  # Standard errors, while treating mean(D) fixed
-  se <- apply(res,2,stats::sd)
-  se_lb <- se[1]/(sqrt(mx)*mean(D))
-  se_ub <- se[2]/(sqrt(mx)*mean(D))
+  att_lb <- est[1]/meanD
+  att_ub <- est[2]/meanD
+  
+  # Standard errors
+  ift <- res/meanD - ((mx*nx)/n)*est/(meaD^2)
+  se <- apply(ift,2,stats::sd)
+  se_lb <- se[1]/sqrt(mx)
+  se_ub <- se[2]/sqrt(mx)
 
   # Stoye (2020) construction
   two_sided <- 1-alpha/2
@@ -159,7 +161,6 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
   
   outputs = list("att_lb"=att_lb,"att_ub"=att_ub,"att_rps"=att_rps,
                  "se_lb"=se_lb,"se_ub"=se_ub,"ci_lb"=ci_lb,"ci_ub"=ci_ub)  
-
 
   class(outputs) = 'ATbounds'
 
