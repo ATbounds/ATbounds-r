@@ -27,7 +27,7 @@
 #' @export
 simulation_dgp <- function(n, ps_spec = "overlap", x_discrete = FALSE){
     
-  x <- runif(n, min = -3, max = 3)
+  x <- stats::runif(n, min = -3, max = 3)
   
   if (x_discrete == TRUE){
       x <- round(x*10)/10 # discrete X in {-3.0, -2.9, ..., 3.0}  
@@ -39,12 +39,12 @@ simulation_dgp <- function(n, ps_spec = "overlap", x_discrete = FALSE){
     px <- 0.25*(x >= 2) + 0.5*(abs(x) < 2) 
   }
   
-  treat <- as.integer(px < runif(n)) # treat = 1 always if x <= -2 for the non-overlap case
+  treat <- as.integer(px < stats::runif(n)) # treat = 1 always if x <= -2 for the non-overlap case
   
   ps <- 1-px
   
-  y_1 <- 1 + px + rnorm(n)
-  y_0 <- px + rnorm(n)
+  y_1 <- 1 + px + stats::rnorm(n)
+  y_0 <- px + stats::rnorm(n)
   y_1  <- as.integer(y_1 > 0)
   y_0  <- as.integer(y_0 > 0)
   

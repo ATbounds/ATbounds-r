@@ -88,7 +88,6 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
               }          
               
               px0k <- (rps_x/(rps_x-1))^k
-              #omega0 <- px0k
               
               if ((qq %% 2) == 1){ # if min(q,nx) is odd
                 

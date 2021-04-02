@@ -96,9 +96,6 @@ atebounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
                px1k <- ((rps_x-1)/rps_x)^k
                px0k <- (rps_x/(rps_x-1))^k
               
-               #omega1 <- px1k
-               #omega0 <- px0k
-              
                if ((qq %% 2) == 1){ # if min(q,nx) is odd
                 
                  term_x1 <- ((nx - nx1)/nx)*(1/choose(nx-1,qq-1))*choose(nx1,k)*choose(nx-1-nx1,qq-1-k)

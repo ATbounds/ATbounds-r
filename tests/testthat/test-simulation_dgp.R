@@ -1,7 +1,7 @@
 context("Testing ATbounds")
 
 test_that("ATE-oracle and the mean difference estimator should be similar when P(D=1|X) = 0.5", {
-  
+  set.seed(1)
   data <- simulation_dgp(10000, ps_spec = "overlap")
   y <- data$outcome
   d <- data$treat
@@ -14,7 +14,7 @@ test_that("ATE-oracle and the mean difference estimator should be similar when P
 })
 
 test_that("ATE-oracle and the mean difference estimator should be different when P(D=1|X) is a function of X", {
-  
+  set.seed(1)
   data <- simulation_dgp(10000, ps_spec = "non-overlap")
   y <- data$outcome
   d <- data$treat
