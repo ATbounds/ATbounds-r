@@ -35,20 +35,13 @@
 attbounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.05){
 
   X <- as.matrix(X)
-  n <- nrow(X)
+  if (studentize == TRUE){
+    X <- scale(X)  # centers and scales the columns of X
+  }  
   
+  n <- nrow(X)
   ymin <- min(Y)
   ymax <- max(Y)
-  
-  # Studentize covariates elementwise  
-    
-  if (studentize == TRUE){
-  sd_x <- apply(X,2,stats::sd)
-  sd_x <- matrix(sd_x,nrow=ncol(X),ncol=n)
-  m_x <- apply(X,2,mean)
-  m_x <- matrix(m_x,nrow=ncol(X),ncol=n)
-  X <- (X-t(m_x))/t(sd_x) 
-  }     
   
   ### ATT estimation using reference propensity scores  ###    
   
@@ -57,7 +50,6 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
 
   ### Computing weights with discrete covariates ###
   
-
   Xunique <- mgcv::uniquecombs(X)       # A matrix of unique rows from X
   ind_Xunique <- attr(Xunique,"index")  # An index vector that the same dimension as that of X
       
@@ -77,7 +69,6 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
       
       y1bar <- (sum(D*Y*disc_ind)/nx1)     # Dividing by zero never occurs because the numerator is zero whenever nx1 is zero  
       y0bar <- (sum((1-D)*Y*disc_ind)/nx0) # Dividing by zero never occurs because the numerator is zero whenever nx0 is zero 
-      
       
       # Computing weights
 
@@ -114,7 +105,6 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
               omega0 <- px0k*term_x0
 
               v_x0 <- v_x0 - omega0
-            
           }
 
        } else{
@@ -123,10 +113,8 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
         
        res[i,1] <- ((mx*nx)/n)*((nx1/nx)*(y1bar - ymax) - v_x0*(y0bar - ymax))
        res[i,2] <- ((mx*nx)/n)*((nx1/nx)*(y1bar - ymin) - v_x0*(y0bar - ymin))
-        
    } 
     
-  
   ### Obtain bound estimates ###
   
   meanD <- mean(D)

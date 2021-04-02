@@ -39,21 +39,14 @@
 atebounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.05){
 
   X <- as.matrix(X)
+  if (studentize == TRUE){
+    X <- scale(X)  # centers and scales the columns of X
+  }  
+
   n <- nrow(X)
-  
   ymin <- min(Y)
   ymax <- max(Y)
 
-  # Studentize covariates elementwise  
-    
-  if (studentize == TRUE){
-  sd_x <- apply(X,2,stats::sd)
-  sd_x <- matrix(sd_x,nrow=ncol(X),ncol=n)
-  m_x <- apply(X,2,mean)
-  m_x <- matrix(m_x,nrow=ncol(X),ncol=n)
-  X <- (X-t(m_x))/t(sd_x) 
-  }     
-  
   ### ATE estimation using reference propensity scores ###  
       
   y1_rps <- mean(D*Y/rps) 
@@ -125,7 +118,6 @@ atebounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
 
                v_x1 <- v_x1 - omega1
                v_x0 <- v_x0 - omega0
-          
           }
       
       } else{
@@ -138,7 +130,6 @@ atebounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
       res[i,4] <- ((mx*nx)/n)*(ymax + v_x0*(y0bar - ymax))
   } 
       
-  
   ### Obtain bound estimates ###
   
   est <- apply(res,2,mean)
