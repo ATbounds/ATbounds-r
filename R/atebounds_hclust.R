@@ -1,15 +1,15 @@
-#' @title Bounding the average treatment effect (ATE) with discrete covariates 
+#' @title Bounding the average treatment effect (ATE) 
 #'
 #' @description Bounds the average treatment effect (ATE) under the unconfoundedness assumption without the overlap condition.
-#' This command is for the case when all the covariates are discrete.
-#'
+
 #' @param Y n-dimensional vector of binary outcomes
 #' @param D n-dimensional vector of binary treatments
 #' @param X n by p matrix of covariates
 #' @param rps n-dimensional vector of the reference propensity score
 #' @param Q bandwidth parameter that determines the maximum number of observations for pooling information (default: Q = 3)
-#' @param studentize TRUE if X is studentized elementwise and FALSE if not (default: TRUE)
+#' @param studentize TRUE if the columns of X are studentized and FALSE if not (default: TRUE)
 #' @param alpha (1-alpha) nominal coverage probability for the confidence interval of ATE (default: 0.05)
+#' @param x_discrete TRUE if the distribution of X is discrete and FALSE otherwise (default: FALSE)
 #' 
 #' @return An S3 object of type "ATbounds". The object has the following elements.
 #' \item{y1_lb}{estimate of the lower bound on the average of Y(1), i.e. E[Y(1)]}
@@ -27,16 +27,14 @@
 #' @examples
 #'   Y <- RHC[,"survival"]
 #'   D <- RHC[,"RHC"]
-#'   age <- round(RHC[,"age"])
-#'   female <- RHC[,"sex_Female"]
-#'   X <- cbind(age,female)
+#'   X <- RHC[,-c(1,2)]
 #'   rps <- rep(mean(D),length(D))
-#'   results_ate <- atebounds_discrete_x(Y, D, X, rps, Q = 3)
+#'   results_ate <- atebounds_hclust(Y, D, X, rps, Q = 3)
 #'
 #' @references Sokbae Lee and Martin Weidner. Bounding Treatment Effects by Pooling Limited Information across Observations.
 #'
 #' @export
-atebounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.05){
+atebounds_hclust <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.05, x_discrete = FALSE){
 
   X <- as.matrix(X)
   if (studentize == TRUE){
@@ -53,12 +51,21 @@ atebounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
   y0_rps <- mean((1-D)*Y/(1-rps))
   ate_rps <- y1_rps - y0_rps
 
-  ### Computing weights with discrete covariates ###
-  
-  Xunique <- mgcv::uniquecombs(X)       # A matrix of unique rows from X
-  ind_Xunique <- attr(Xunique,"index")  # An index vector that has the same dimension as that of X
-  
-  mx <- nrow(Xunique) # number of unique rows 
+  if (x_discrete == FALSE){  # Computing weights with non-discrete covariates
+
+    hc <- stats::hclust(stats::dist(X), method = "complete")  # hierarchical cluster
+    mx <- ceiling(n/Q)                                        # number of clusters 
+    ind_Xunique <- stats::cutree(hc, k = mx)                  # An index vector that has the same dimension as that of X
+ 
+  } else if (x_discrete == TRUE){  # Computing weights with discrete covariates
+
+    Xunique <- mgcv::uniquecombs(X)       # A matrix of unique rows from X
+    ind_Xunique <- attr(Xunique,"index")  # An index vector that has the same dimension as that of X
+    mx <- nrow(Xunique)                   # number of unique rows 
+
+  } else {
+    stop("x_discrete must be either TRUE or FALSE.") 
+  }
   
   res <- matrix(NA,nrow=mx,ncol=4)
       

@@ -2,6 +2,8 @@
 
 export(atebounds)
 export(atebounds_discrete_x)
+export(atebounds_hclust)
 export(attbounds)
 export(attbounds_discrete_x)
+export(attbounds_hclust)
 export(simulation_dgp)

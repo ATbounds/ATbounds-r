@@ -1,7 +1,6 @@
-#' @title Bounding the average treatment effect on the treated (ATT) with discrete covariates 
+#' @title Bounding the average treatment effect on the treated (ATT) 
 #'
 #' @description Bounds the average treatment effect on the treated (ATT) under the unconfoundedness assumption without the overlap condition.
-#' This command is for the case when all the covariates are discrete.
 #'
 #' @param Y n-dimensional vector of binary outcomes
 #' @param D n-dimensional vector of binary treatments
@@ -10,6 +9,7 @@
 #' @param Q bandwidth parameter that determines the maximum number of observations for pooling information (default: Q = 3)
 #' @param studentize TRUE if X is studentized elementwise and FALSE if not (default: TRUE)
 #' @param alpha (1-alpha) nominal coverage probability for the confidence interval of ATE (default: 0.05)
+#' @param x_discrete TRUE if the distribution of X is discrete and FALSE otherwise (default: FALSE)
 #' 
 #' @return An S3 object of type "ATbounds". The object has the following elements.
 #' \item{att_lb}{estimate of the lower bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
@@ -23,16 +23,14 @@
 #' @examples
 #'   Y <- RHC[,"survival"]
 #'   D <- RHC[,"RHC"]
-#'   age <- round(RHC[,"age"])
-#'   female <- RHC[,"sex_Female"]
-#'   X <- cbind(age,female)
+#'   X <- RHC[,-c(1,2)]
 #'   rps <- rep(mean(D),length(D))
-#'   results_att <- attbounds_discrete_x(Y, D, X, rps, Q = 3)
+#'   results_att <- attbounds_hclust(Y, D, X, rps, Q = 3)
 #'
 #' @references Sokbae Lee and Martin Weidner. Bounding Treatment Effects by Pooling Limited Information across Observations.
 #'
 #' @export
-attbounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.05){
+attbounds_hclust <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.05, x_discrete = FALSE){
 
   X <- as.matrix(X)
   if (studentize == TRUE){
@@ -46,15 +44,24 @@ attbounds_discrete_x <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha 
   ### ATT estimation using reference propensity scores  ###    
   
   rps_wt <- rps/(1-rps)      
-  att_rps <- sum(D*Y-rps_wt*(1-D)*Y)/sum(D)      
+  att_rps <- sum(D*Y-rps_wt*(1-D)*Y)/sum(D) 
 
-  ### Computing weights with discrete covariates ###
+  if (x_discrete == FALSE){  # Computing weights with non-discrete covariates
+    
+    hc <- stats::hclust(stats::dist(X), method = "complete")  # hierarchical cluster
+    mx <- ceiling(n/Q)                                        # number of clusters 
+    ind_Xunique <- stats::cutree(hc, k = mx)                  # An index vector that has the same dimension as that of X
+    
+  } else if (x_discrete == TRUE){  # Computing weights with discrete covariates
+    
+    Xunique <- mgcv::uniquecombs(X)       # A matrix of unique rows from X
+    ind_Xunique <- attr(Xunique,"index")  # An index vector that has the same dimension as that of X
+    mx <- nrow(Xunique)                   # number of unique rows 
+    
+  } else {
+    stop("x_discrete must be either TRUE or FALSE.") 
+  }    
   
-  Xunique <- mgcv::uniquecombs(X)       # A matrix of unique rows from X
-  ind_Xunique <- attr(Xunique,"index")  # An index vector that has the same dimension as that of X
-      
-  mx <- nrow(Xunique) # number of unique rows 
-      
   res <- matrix(NA,nrow=mx,ncol=2)
       
   for (i in 1:mx){ # this loop may not be fast if mx is very large
