@@ -12,7 +12,8 @@ attbounds_hclust(
   Q = 3L,
   studentize = TRUE,
   alpha = 0.05,
-  x_discrete = FALSE
+  x_discrete = FALSE,
+  n_hc = NULL
 )
 }
 \arguments{
@@ -31,6 +32,9 @@ attbounds_hclust(
 \item{alpha}{(1-alpha) nominal coverage probability for the confidence interval of ATE (default: 0.05)}
 
 \item{x_discrete}{TRUE if the distribution of X is discrete and FALSE otherwise (default: FALSE)}
+
+\item{n_hc}{number of hierarchical clusters to discretize non-discrete covariates; relevant only if x_discrete is FALSE.
+The default choice is n_hc = ceiling(length(Y)/10), so that there are 10 observations in each cluster on average.}
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.

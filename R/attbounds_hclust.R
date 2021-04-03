@@ -10,6 +10,8 @@
 #' @param studentize TRUE if X is studentized elementwise and FALSE if not (default: TRUE)
 #' @param alpha (1-alpha) nominal coverage probability for the confidence interval of ATE (default: 0.05)
 #' @param x_discrete TRUE if the distribution of X is discrete and FALSE otherwise (default: FALSE)
+#' @param n_hc number of hierarchical clusters to discretize non-discrete covariates; relevant only if x_discrete is FALSE.
+#' The default choice is n_hc = ceiling(length(Y)/10), so that there are 10 observations in each cluster on average. 
 #' 
 #' @return An S3 object of type "ATbounds". The object has the following elements.
 #' \item{att_lb}{estimate of the lower bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
@@ -30,7 +32,7 @@
 #' @references Sokbae Lee and Martin Weidner. Bounding Treatment Effects by Pooling Limited Information across Observations.
 #'
 #' @export
-attbounds_hclust <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.05, x_discrete = FALSE){
+attbounds_hclust <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.05, x_discrete = FALSE, n_hc = NULL){
 
   X <- as.matrix(X)
   if (studentize == TRUE){
@@ -41,6 +43,10 @@ attbounds_hclust <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.
   ymin <- min(Y)
   ymax <- max(Y)
   
+  if (is.null(n_hc) == TRUE){ 
+    n_hc = ceiling(n/10)  # number of clusters  
+  }  
+  
   ### ATT estimation using reference propensity scores  ###    
   
   rps_wt <- rps/(1-rps)      
@@ -49,8 +55,8 @@ attbounds_hclust <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.
   if (x_discrete == FALSE){  # Computing weights with non-discrete covariates
     
     hc <- stats::hclust(stats::dist(X), method = "complete")  # hierarchical cluster
-    mx <- ceiling(n/Q)                                        # number of clusters 
-    ind_Xunique <- stats::cutree(hc, k = mx)                  # An index vector that has the same dimension as that of X
+    ind_Xunique <- stats::cutree(hc, k = n_hc)                # An index vector that has the same dimension as that of X
+    mx <- n_hc
     
   } else if (x_discrete == TRUE){  # Computing weights with discrete covariates
     
@@ -60,7 +66,7 @@ attbounds_hclust <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.
     
   } else {
     stop("x_discrete must be either TRUE or FALSE.") 
-  }    
+  }
   
   res <- matrix(NA,nrow=mx,ncol=2)
       
@@ -84,15 +90,19 @@ attbounds_hclust <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.
           qq <- min(Q,nx)
           k_upper <- 2*floor(qq/2)
           v_x0 <- nx1/nx
+
+          rps_x <- rps[disc_ind]
+          
+          if (x_discrete == FALSE){ 
+            rps_x <- mean(rps_x)  # if X is non-discrete, take the average
+          } else if (x_discrete == TRUE){
+            rps_x <- unique(rps_x)
+            if (length(rps_x) > 1){
+              stop("The reference propensity score should be unique for the same value of X if X is discrete.")   
+            }
+          }              
           
           for (k in 0:k_upper){
-
-              rps_x <- rps[disc_ind]
-              rps_x <- unique(rps_x)
-              
-              if (length(rps_x) > 1){
-                stop("The reference propensity score should be unique for the same value of x.")   
-              }          
               
               px0k <- (rps_x/(rps_x-1))^k
               
@@ -100,7 +110,7 @@ attbounds_hclust <- function(Y, D, X, rps, Q = 3L, studentize = TRUE, alpha = 0.
                 
                 term_x0 <- ((nx - nx0)/nx)*(1/choose(nx-1,qq-1))*choose(nx0,k)*choose(nx-1-nx0,qq-1-k)
                 
-              } else if ((qq %% 2) == 0){ # min(q,nx) is even
+              } else if ((qq %% 2) == 0){ # if min(q,nx) is even
                 
                 term_x0 <- (1/choose(nx,qq))*choose(nx0,k)*choose(nx-nx0,qq-k)
                 

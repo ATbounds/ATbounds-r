@@ -172,7 +172,7 @@ We also set $Q=3$.
   print(bns_nsw_att)
 ```
 
-Again the results are a bit sensitive to the choice of $q$ and it is likely to be deriven by a relative small sample size.
+Again the results are a bit sensitive to the choice of $q$ and it is likely to be driven by a relative small sample size.
 
 <!-- Notice that `bns_nsw$y1_lb` is equal to `bns_nsw$y1_ub` above. This is because it turns out that the estimated upper bound was smaller than the estimated lower bound, which indicates that $\mathbb{E}[Y(1)]$ may be point-identified, that is, the assumed reference propensity score is correctly specified. If this happens, we assign the following for both the upper and lower bounds: -->
 <!-- $$ -->
@@ -239,4 +239,4 @@ Finally, we obtain the bounds for the average treatment effect on the treated (A
 ```
 
 Again, we find that the bounds are wide; they seem similar to those for the ATE. 
-Overall, the empirical results suggest that PSID2 controls are substantially different from the treated units such that the unconfoundedness assumption does not provide any meaningful restriction once the overlap condition is dropped and the logit prepensity score can be misspecified.
+Overall, the empirical results suggest that PSID2 controls are substantially different from the treated units such that the unconfoundedness assumption does not provide any meaningful restriction once the overlap condition is dropped and the logit propensity score can be misspecified.
