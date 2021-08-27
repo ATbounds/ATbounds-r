@@ -1,5 +1,5 @@
 ---
-title: "ATbounds-vignette-NSW"
+title: "ATbounds: An R vignette using data from Dehijia's web page"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{ATbounds-vignette-NSW}
@@ -200,11 +200,11 @@ Again the results are more or less similar in terms of confidence intervals. Bou
 
 
 ```{r}
-  attach(nswre)
   psid2_control <- read.table("http://users.nber.org/~rdehejia/data/psid2_controls.txt")
   colnames(psid2_control) <- c("treat","age","edu","black","hispanic",
                            "married","nodegree","RE74","RE75","RE78")
   psid <- rbind(nswre_treated,psid2_control)
+  detach(nswre)
   attach(psid)
   D <- treat  
   Y <- (RE78 > 0) 
@@ -243,6 +243,7 @@ Finally, we obtain the bounds for the average treatment effect on the treated (A
 ```{r}
   summary(atebounds(Y, D, X, rps_lm))
   summary(atebounds(Y, D, X, rps_sp))
+  detach(psid)
 ```
 
 We find that the bounds on ATT are similar to those on ATE.
