@@ -4,7 +4,17 @@
 \alias{attbounds}
 \title{Bounding the average treatment effect on the treated (ATT)}
 \usage{
-attbounds(Y, D, X, rps, Q = 2L, n_permute = 0, studentize = TRUE)
+attbounds(
+  Y,
+  D,
+  X,
+  rps,
+  Q = 3L,
+  studentize = TRUE,
+  alpha = 0.05,
+  x_discrete = FALSE,
+  n_hc = NULL
+)
 }
 \arguments{
 \item{Y}{n-dimensional vector of binary outcomes}
@@ -13,28 +23,40 @@ attbounds(Y, D, X, rps, Q = 2L, n_permute = 0, studentize = TRUE)
 
 \item{X}{n by p matrix of covariates}
 
-\item{rps}{n-dimensional vector of reference propensity scores}
+\item{rps}{n-dimensional vector of the reference propensity score}
 
-\item{Q}{polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)}
+\item{Q}{bandwidth parameter that determines the maximum number of observations for pooling information (default: Q = 3)}
 
-\item{n_permute}{number of permutations to shuffle the data (default: 0)}
+\item{studentize}{TRUE if X is studentized elementwise and FALSE if not (default: TRUE)}
 
-\item{studentize}{TRUE if x is studentized elementwise and FALSE if not (default: TRUE)}
+\item{alpha}{(1-alpha) nominal coverage probability for the confidence interval of ATE (default: 0.05)}
+
+\item{x_discrete}{TRUE if the distribution of X is discrete and FALSE otherwise (default: FALSE)}
+
+\item{n_hc}{number of hierarchical clusters to discretize non-discrete covariates; relevant only if x_discrete is FALSE.
+The default choice is n_hc = ceiling(length(Y)/10), so that there are 10 observations in each cluster on average.}
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.
-\item{lb}{the lower bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
-\item{ub}{the upper bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
-\item{att_rps}{the point estimate of ATT using the reference propensity scores}
+\item{call}{a call in which all of the specified arguments are specified by their full names}
+\item{type}{ATT}
+\item{cov_prob}{Confidence level: 1-alpha}
+\item{est_lb}{estimate of the lower bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+\item{est_ub}{estimate of the upper bound on ATT, i.e. E[Y(1) - Y(0) | D = 1]}
+\item{est_rps}{the point estimate of ATT using the reference propensity score}
+\item{se_lb}{standard error for the estimate of the lower bound on ATT}
+\item{se_ub}{standard error for the estimate of the upper bound on ATT}
+\item{ci_lb}{the lower end point of the confidence interval for ATT}
+\item{ci_ub}{the upper end point of the confidence interval for ATT}
 }
 \description{
-Bounds the average treatment effect on the treated (ATT) under the unconfoundedness assumption without the overlap condition
+Bounds the average treatment effect on the treated (ATT) under the unconfoundedness assumption without the overlap condition.
 }
 \examples{
   Y <- RHC[,"survival"]
   D <- RHC[,"RHC"]
   X <- RHC[,-c(1,2)]
-  rps <- rep(mean(D),length(D))  
+  rps <- rep(mean(D),length(D))
   results_att <- attbounds(Y, D, X, rps, Q = 3)
 
 }

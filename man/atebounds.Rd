@@ -4,7 +4,17 @@
 \alias{atebounds}
 \title{Bounding the average treatment effect (ATE)}
 \usage{
-atebounds(Y, D, X, rps, Q = 2L, n_permute = 0L, studentize = TRUE)
+atebounds(
+  Y,
+  D,
+  X,
+  rps,
+  Q = 3L,
+  studentize = TRUE,
+  alpha = 0.05,
+  x_discrete = FALSE,
+  n_hc = NULL
+)
 }
 \arguments{
 \item{Y}{n-dimensional vector of binary outcomes}
@@ -13,23 +23,35 @@ atebounds(Y, D, X, rps, Q = 2L, n_permute = 0L, studentize = TRUE)
 
 \item{X}{n by p matrix of covariates}
 
-\item{rps}{n-dimensional vector of reference propensity scores}
+\item{rps}{n-dimensional vector of the reference propensity score}
 
-\item{Q}{polynomial order that uses the (Q-1) nearest neighbors excluding own observations (default: Q = 2)}
+\item{Q}{bandwidth parameter that determines the maximum number of observations for pooling information (default: Q = 3)}
 
-\item{n_permute}{number of permutations to shuffle the data (default: 0)}
+\item{studentize}{TRUE if the columns of X are studentized and FALSE if not (default: TRUE)}
 
-\item{studentize}{TRUE if x is studentized elementwise and FALSE if not (default: TRUE)}
+\item{alpha}{(1-alpha) nominal coverage probability for the confidence interval of ATE (default: 0.05)}
+
+\item{x_discrete}{TRUE if the distribution of X is discrete and FALSE otherwise (default: FALSE)}
+
+\item{n_hc}{number of hierarchical clusters to discretize non-discrete covariates; relevant only if x_discrete is FALSE.
+The default choice is n_hc = ceiling(length(Y)/10), so that there are 10 observations in each cluster on average.}
 }
 \value{
 An S3 object of type "ATbounds". The object has the following elements.
-\item{y1_lb}{the lower bound on the average of Y(1), i.e. E[Y(1)]}
-\item{y1_ub}{the upper bound on the average of Y(1), i.e. E[Y(1)]}
-\item{y0_lb}{the lower bound on the average of Y(0), i.e. E[Y(0)]}
-\item{y0_ub}{the upper bound on the average of Y(0), i.e. E[Y(0)]}
-\item{ate_lb}{the lower bound on ATE, i.e. E[Y(1) - Y(0)]}
-\item{ate_ub}{the upper bound on ATE, i.e. E[Y(1) - Y(0)]}
-\item{ate_rps}{the point estimate of ATE using the reference propensity scores}
+\item{call}{a call in which all of the specified arguments are specified by their full names}
+\item{type}{ATE}
+\item{cov_prob}{Confidence level: 1-alpha}
+\item{y1_lb}{estimate of the lower bound on the average of Y(1), i.e. E[Y(1)]}
+\item{y1_ub}{estimate of the upper bound on the average of Y(1), i.e. E[Y(1)]}
+\item{y0_lb}{estimate of the lower bound on the average of Y(0), i.e. E[Y(0)]}
+\item{y0_ub}{estimate of the upper bound on the average of Y(0), i.e. E[Y(0)]}
+\item{est_lb}{estimate of the lower bound on ATE, i.e. E[Y(1) - Y(0)]}
+\item{est_ub}{estimate of the upper bound on ATE, i.e. E[Y(1) - Y(0)]}
+\item{est_rps}{the point estimate of ATE using the reference propensity score}
+\item{se_lb}{standard error for the estimate of the lower bound on ATE}
+\item{se_ub}{standard error for the estimate of the upper bound on ATE}
+\item{ci_lb}{the lower end point of the confidence interval for ATE}
+\item{ci_ub}{the upper end point of the confidence interval for ATE}
 }
 \description{
 Bounds the average treatment effect (ATE) under the unconfoundedness assumption without the overlap condition.
@@ -38,7 +60,7 @@ Bounds the average treatment effect (ATE) under the unconfoundedness assumption 
   Y <- RHC[,"survival"]
   D <- RHC[,"RHC"]
   X <- RHC[,-c(1,2)]
-  rps <- rep(mean(D),length(D))  
+  rps <- rep(mean(D),length(D))
   results_ate <- atebounds(Y, D, X, rps, Q = 3)
 
 }

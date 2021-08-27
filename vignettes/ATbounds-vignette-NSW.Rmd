@@ -107,39 +107,42 @@ Using this reference propensity score, the average treatment effect is obtained 
   print(ate_nswre)
 ```
 
-We now introduce our bounds. 
+### Bounds on ATE
+
+We now introduce our bounds on the average treatment effect (ATE). 
 
 ```{r}
-  bns_nsw <- atebounds(Y, D, X, rps, Q = 2, n_permute = 500)
+  bns_nsw <- atebounds(Y, D, X, rps)
 ```
 
-In implementing `atebounds`, the default choice of the polynomial order `q` is $Q = 2$, which uses the nearest neighbor excluding own observations. The $k$-nearest neighbor estimator is used when $Q = k+1$. Here, the nearest neighbor for observation $i$ is always its own observation $i$. We use the R package [FNN](https://CRAN.R-project.org/package=FNN) to carry out k-nearest neighbor search. When there are ties, the ordering of the observations may matter. To avoid this issue, we permute the dataset `n_permute` number of times and take the average of the estimates of the bounds. The default choice of `n_permute = 0`, under which there is no permutation. 
+In implementing `atebounds`, there are several options:
 
-There are two more options which are not used above:
+* `Q`: bandwidth parameter that determines the maximum number of observations for pooling information (default: $Q = 3$)
 
-* `discrete`: `TRUE` if `X` includes only discrete covariates and `FALSE` if not (default: `FALSE`)
 * `studentize`: `TRUE` if `X` is studentized elementwise and `FALSE` if not (default: `TRUE`)
 
-We print the outputs saved in `bns_nsw`.
+* `alpha`: $(1-\alpha)$ nominal coverage probability for the confidence interval of ATE (default: 0.05)
+
+* `discrete`: `TRUE` if `X` includes only discrete covariates and `FALSE` if not (default: `FALSE`)
+
+* `n_hc`: number of hierarchical clusters to discretize non-discrete covariates; relevant only if x_discrete is FALSE. The default choice is `n_hc = ceiling(length(Y)/10)`, so that there are 10 observations in each cluster on average.
+
+We show the summary results saved in `bns_nsw`.
 
 ```{r}
-  print(bns_nsw)
+  summary(bns_nsw)
 ```
 
-The output list contains: 
-
-* `y1_lb`: the lower bound of the average of $Y(1)$, i.e. $\mathbb{E}[Y(1)]$,
-* `y1_ub`: the upper bound of the average of $Y(1)$, i.e. $\mathbb{E}[Y(1)]$,
-* `y0_lb`: the lower bound of the average of $Y(0)$, i.e. $\mathbb{E}[Y(0)]$,
-* `y0_ub`: the upper bound of the average of $Y(0)$, i.e. $\mathbb{E}[Y(0)]$,
-* `ate_lb`: the lower bound of ATE, i.e. $\mathbb{E}[Y(1) - Y(0)]$,
-* `ate_ub`: the upper bound of ATE, i.e. $\mathbb{E}[Y(1) - Y(0)]$,
-* `ate_rps`: the point estimate of ATE using the reference propensity score
- 
 With $Q=2$, the bounds for ATE is
 ```{r}
-print(c(bns_nsw$ate_lb,bns_nsw$ate_ub))
+summary(atebounds(Y, D, X, rps, Q = 2))
 ```
+
+With $Q=4$, the bounds for ATE is
+```{r}
+summary(atebounds(Y, D, X, rps, Q = 4))
+```
+
 
 Recall that the point ATE estimate was
 
@@ -147,42 +150,51 @@ Recall that the point ATE estimate was
 print(ate_nswre)
 ```
 
-Thus, the upper bound is slightly smaller than the point estimate using the reference propensity score. However, their difference may not be significant given the small sample size.
+Thus, the upper bound is slightly smaller than the point estimate using the reference propensity score is in the 95% confidence interval for $Q=2, 3, 4$.
 
-We now look at the case with $Q=3$.
-
-```{r}
-  bns_nsw <- atebounds(Y, D, X, rps, Q = 3, n_permute = 500)
-  print(c(bns_nsw$ate_lb,bns_nsw$ate_ub))
-```
-
-With $Q=3$, the bounds cross. This indicates that the ATE estimate may be a reasonable estimate. We need to develop an inference method to reach a more definite answer.
-
-We now look at ATT.
+To see what is saved in `bns_nsw`, we now print it out.
 
 ```{r}
-  bns_nsw_att <- attbounds(Y, D, X, rps, Q = 2, n_permute = 500)
-  print(bns_nsw_att)
+  print(bns_nsw)
 ```
 
-We also set $Q=3$.
+The output list contains: 
+
+* `call`: a call in which all of the specified arguments are specified by their full names
+* `type`: ATE
+* `cov_prob`: confidence level (1-alpha)
+* `y1_lb`: estimate of the lower bound on the average of $Y(1)$, i.e. $\mathbb{E}[Y(1)]$,
+* `y1_ub`: estimate of the upper bound on the average of $Y(1)$, i.e. $\mathbb{E}[Y(1)]$,
+* `y0_lb`: estimate of the lower bound on the average of $Y(0)$, i.e. $\mathbb{E}[Y(0)]$,
+* `y0_ub`: estimate of the upper bound on the average of $Y(0)$, i.e. $\mathbb{E}[Y(0)]$,
+* `est_lb`: estimate of the lower bound on ATE, i.e. $\mathbb{E}[Y(1) - Y(0)]$,
+* `est_ub`: estimate of the upper bound on ATE, i.e. $\mathbb{E}[Y(1) - Y(0)]$,
+* `est_rps`: the point estimate of ATE using the reference propensity score
+* `se_lb`: standard error for the estimate on the lower bound on ATE
+* `se_ub`: standard error for the estimate of the upper bound on ATE
+* `ci_lb`: the lower end point of the confidence interval for ATE
+* `ci_ub`: the upper end point of the confidence interval for ATE
+
+### Bounds on ATT
+
+We now look at bounds on the average treatment effect on the treated (ATT). 
 
 ```{r}
-  bns_nsw_att <- attbounds(Y, D, X, rps, Q = 3, n_permute = 500)
-  print(bns_nsw_att)
+  bns_nsw_att <- attbounds(Y, D, X, rps)
+  summary(bns_nsw_att)
 ```
 
-Again the results are a bit sensitive to the choice of $q$ and it is likely to be driven by a relative small sample size.
+We also experiment with $Q=2$ and $Q=4$.
 
-<!-- Notice that `bns_nsw$y1_lb` is equal to `bns_nsw$y1_ub` above. This is because it turns out that the estimated upper bound was smaller than the estimated lower bound, which indicates that $\mathbb{E}[Y(1)]$ may be point-identified, that is, the assumed reference propensity score is correctly specified. If this happens, we assign the following for both the upper and lower bounds: -->
-<!-- $$ -->
-<!-- \widehat{\mathbb{E} [Y(1) ]} = \frac{1}{n} \sum_{i=1}^n \frac{D_i Y_i}{p_*(X_i)}, -->
-<!-- $$ -->
-<!-- where $p_*(\cdot)$ is the reference propensity score. On the other hand, `bns_nsw$y0_lb` is indeed smaller than `bns_nsw$y0_ub`. Finally, we obtain the lower bound for ATE by -->
-<!-- `ate_lb = y1_lb - y0_ub` and the upper bound by  -->
-<!-- `ate_ub = y1_ub - y0_lb`.  -->
+```{r}
+  summary(attbounds(Y, D, X, rps, Q = 2))
+```
 
-<!-- We find that the estimated bounds for ATE are tight and includes `ate_rps`, as expected since the assumed reference propensity score is correctly specified. -->
+```{r}
+  summary(attbounds(Y, D, X, rps, Q = 4))
+```
+
+Again the results are more or less similar in terms of confidence intervals. Bound estimates are sensitive to the choice of $Q$ and it is likely to be driven by a relative small sample size. 
 
 ## NSW treated plus PSID control 
 
@@ -204,39 +216,33 @@ We now estimate the reference propensity score using a logit model and obtain th
 
 ```{r}
   lm <- stats::glm(D~X, family=binomial("logit"))
-  rps <- lm$fitted.values
-  bns_psid <- atebounds(Y, D, X, rps, Q = 2, n_permute = 500)
-  print(bns_psid)
+  rps_lm <- lm$fitted.values
+  bns_psid <- atebounds(Y, D, X, rps_lm)
+  summary(bns_psid)
 ```
+
+We compare the results using the logit reference propensity score with those using the sample proportion as the reference propensity score.  
 
 ```{r}
-  lm <- stats::glm(D~X, family=binomial("logit"))
-  rps <- lm$fitted.values
-  bns_psid <- atebounds(Y, D, X, rps, Q = 3, n_permute = 500)
-  print(bns_psid)
+  rps_sp <- rep(mean(D),length(D))  
+  bns_psid <- atebounds(Y, D, X, rps_sp)
+  summary(bns_psid)
 ```
 
-The bounds are wide and includes zero. We compare these with the Manski bounds, which can be obtained by setting $Q = 1$. 
+Both results are similar. We compare these with the Manski bounds, which can be obtained by setting $Q = 1$. 
 
 ```{r}
-  bns_psid <- atebounds(Y, D, X, rps, Q = 1, n_permute = 500)
-  print(bns_psid)
+  summary(atebounds(Y, D, X, rps_lm, Q=1))
+  summary(atebounds(Y, D, X, rps_sp, Q=1))
 ```
 
-We can see that the Manski bounds are qualitatively comparable to those with $Q = 2,3$. This is interesting because the Manski bounds do not impose the unconfoundedness assumption.   
+We can see that the Manski bounds are much larger and the same regardless of the specification of the reference propensity scores. Recall the Manski bounds do not impose the unconfoundedness assumption and do not rely on any pooling information (hence, it does not matter how to specifiy the reference propensity score).   
 
 Finally, we obtain the bounds for the average treatment effect on the treated (ATT).
 
 ```{r}
-  bns_psid_att <- attbounds(Y, D, X, rps, Q = 2, n_permute = 500)
-  print(bns_psid_att)
+  summary(atebounds(Y, D, X, rps_lm))
+  summary(atebounds(Y, D, X, rps_sp))
 ```
 
-```{r}
-  bns_psid_att <- attbounds(Y, D, X, rps, Q = 3, n_permute = 500)
-  print(bns_psid_att)
-  detach(psid)
-```
-
-Again, we find that the bounds are wide; they seem similar to those for the ATE. 
-Overall, the empirical results suggest that PSID2 controls are substantially different from the treated units such that the unconfoundedness assumption does not provide any meaningful restriction once the overlap condition is dropped and the logit propensity score can be misspecified.
+We find that the bounds on ATT are similar to those on ATE.
