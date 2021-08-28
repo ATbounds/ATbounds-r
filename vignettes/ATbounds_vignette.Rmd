@@ -1,8 +1,11 @@
 ---
-title: "ATbounds: An R vignette"
-output: rmarkdown::html_vignette
+title: "ATbounds: An R Vignette"
+author: "Sokbae Lee and Martin Weidner"
+abstract: ATbounds is an R package that provides estimation and inference methods for bounding average treatment effects (on the treated) that are valid under an unconfoundedness assumption. The bounds are designed to be robust in challenging situations, for example, when the the conditioning variables take on a large number of different values in the observed sample, or when the overlap condition is violated. This robustness is achieved by only using limited "pooling" of information across observations.    
+output: rmarkdown::pdf_document
+bibliography: refs.bib 
 vignette: >
-  %\VignetteIndexEntry{ATbounds: An R vignette}
+  %\VignetteIndexEntry{ATbounds: An R Vignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,9 +17,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-___ATbounds___ is an R package that provides estimation and inference methods for bounding average treatment effects (on the treated) that are valid under an unconfoundedness assumption. The bounds are designed to be robust in challenging situations, for example, when the the conditioning variables take on a large number of different values in the observed sample, or when the overlap condition is violated. This robustness is achieved by only using limited "pooling" of information across observations. 
+## Introduction
 
-See Lee and Weidner (2021), "Bounding Treatment Effects by Pooling Limited Information across Observations," <arXiv:??? [econ.EM]>.
+__ATbounds__ is an R package that provides estimation and inference methods for bounding average treatment effects (on the treated) that are valid under an unconfoundedness assumption. The bounds are designed to be robust in challenging situations, for example, when the the conditioning variables take on a large number of different values in the observed sample, or when the overlap condition is violated. This robustness is achieved by only using limited "pooling" of information across observations. Namely, the bounds are constructed as sample averages over functions of the observed outcomes such that the contribution of each outcome only depends on the treatment status of a limited number of observations. No information pooling across observations leads to so-called "Manski bounds" [@manski1989anatomy; @manski1990nonparametric], while unlimited information pooling leads to standard inverse propensity score weighting. The ATbounds package provides inference methods for exploring the intermediate range between these two extremes.
+
+The methodology used in the ATbounds package is described in detail in Lee and Weidner (2021), "Bounding Treatment Effects by Pooling Limited Information across Observations," <arXiv:??? [econ.EM]>.
 
 We begin by calling the ATbounds package.
 
@@ -24,9 +29,10 @@ We begin by calling the ATbounds package.
 library(ATbounds)
 ```
 
-# Bounding the Effects of a Job Training Program
+# Case Study 1: Bounding the Effects of a Job Training Program
 
-To illustrate the usefulness of the package, we first use the well-known LaLonde dataset available at [Rajeev Dehejia's Data Page](http://users.nber.org/~rdehejia/nswdata2.html).
+To illustrate the usefulness of the package, we first use the well-known 
+@LaLonde-AER dataset available at [Rajeev Dehejia's Data Page](http://users.nber.org/~rdehejia/nswdata2.html).
 
 ## LaLonde's Experimental Sample 
 
@@ -79,7 +85,7 @@ The 95% confidence interval $[0.01,0.14]$ is rather wide but excludes zero.
 
 ## Dehejia-Wahba Sample 
 
-Dehejia and Wahba (1999, 2002) extract a further subset of Lalonde's NSW experimental data to obtain a subset containing information on RE74 (earnings in 1974). 
+@DehejiaWahba-JASA and @DehejiaWahba-RESTAT extract a further subset of LaLonde's NSW experimental data to obtain a subset containing information on RE74 (earnings in 1974). 
 
 ```{r}
   detach(nsw)
@@ -288,29 +294,216 @@ Finally, we obtain the bounds for the average treatment effect on the treated (A
 We find that the bounds on ATT are wide, as in ATE.
 
 
-# Bounding the Effect of Right Heart Catheterization 
+# Case Study 2: Bounding the Effect of Right Heart Catheterization 
 
-As a second empirical example, we revisit the well-known Right Heart Catheterization Dataset available at [Vanderbilt Biostatistics Datasets Page](http://biostat.mc.vanderbilt.edu/wiki/Main/DataSets).
+As a second empirical example, we revisit the well-known Right Heart Catheterization Dataset. 
+In particular, we apply our methods to @Connors1996's study of the
+efficacy of right heart catheterization (RHC), which is a diagnostic
+procedure for directly measuring cardiac function in critically ill
+patients. This dataset has been subsequently used in the context of
+limited overlap by @crump2009dealing, @Rothe:2017, and
+@Li-et-al:2018 among others. The dataset is publicly available on the
+Vanderbilt Biostatistics website at
+<https://hbiostat.org/data>.
+
+In this example, the dependent variable is 1 if a patient survived after
+30 days of admission, and 0 if a patient died within 30 days. The binary
+treatment variable is 1 if RHC was applied within 24 hours of admission,
+and 0 otherwise. The sample size was $n = 5735$, and 2184 patients were
+treated with RHC. There are a large number of covariates:
+[@hirano2001estimation] constructed 72 variables from the dataset and
+the same number of covariates were considered in both
+[@crump2009dealing] and [@Li-et-al:2018] and 50 covariates were used in
+[@Rothe:2017]. In our exercise, we constructed the same 72 covariates.
 A cleaned version of the dataset is available in the package. 
+
 
 ```{r}
   Y <- RHC[,"survival"]
   D <- RHC[,"RHC"]
-  X <- RHC[,-c(1,2)]
+  X <- as.matrix(ATbounds::RHC[,-c(1,2)])
 ```
 
-## Bounding the Average Treatment Effect 
 
-We take the reference propensity score to be 
-$\widehat{p}_{\text{RPS}}(X_i) = n^{-1} \sum_{i=1}^n D_i$
-for each observation $i$. That is, we assign the sample proportion of the treated to the 
-reference propensity scores uniformly for all observations. Of course, this is likely to be misspecified; however, it has the advantage that $1/\widehat{p}_{\text{RPS}}(X_i)$ is never close to 0 or 1.
+As in the aforementioned papers, we estimated the propensity scores by a
+logit model with all 72 covariates being added linearly.
+
+
+```{r}
+  # Logit estimation of propensity score
+  glm_ps <- stats::glm(D~X,family=binomial("logit"))
+  ps <- glm_ps$fitted.values
+  ps_treated <- ps[D==1]
+  ps_control <- ps[D==0]
+  # Plotting histograms of propensity scores
+  df <- data.frame(cbind(D,ps))
+  colnames(df)<-c("RHC","PS")
+  df$RHC <- as.factor(df$RHC)
+  levels(df$RHC) <- c("No RHC (Control)", "RHC (Treated)")
+  
+  ggplot2::ggplot(df, ggplot2::aes(x=PS, color=RHC, fill=RHC)) +
+    ggplot2::geom_histogram(breaks=seq(0,1,0.1),alpha=0.5,position="identity")
+```
+
+The figure above shows the
+histograms of estimated propensity scores for treated and control
+groups. It is very similar to Fig.1 in @crump2009dealing and to Figure
+2 in @Rothe:2017. The support of the estimated propensity scores are
+almost on the unit interval for both treated and control units, although
+there is some visual evidence on limited overlap (that is, control units
+have much fewer propensity scores close to 1).
+
+## Bounding the Average Treatment Effect on the Treated
+
+In this section, we focus on ATT. We first estimate ATT by the
+normalized inverse probability weighted estimator: 
+$$\begin{aligned}
+\widehat{\text{ATT}}_{\text{PS}} 
+:= \frac{\sum_{i=1}^n D_i Y_i}{\sum_{i=1}^n D_i}
+- \frac{\sum_{i=1}^n (1-D_i) W_i Y_i}{\sum_{i=1}^n (1-D_i) W_i},
+\end{aligned}$$
+where $W_i := \widehat{p}(X_i)/[1-\widehat{p}(X_i)]$ and
+$\widehat{p}(X_i)$ is the estimated propensity score for observation $i$
+based on the logit model described above. 
+See, e.g., equation (3) and discussions in @busso2014new for
+    details of the normalized inverse probability weighted ATT
+    estimator.
+The estimator
+$\widehat{\text{ATT}}_{\text{PS}}$ requires that the assumed propensity
+score model is correctly specified and the overlap condition is
+satisfied. The resulting estimate is
+$\widehat{\text{ATT}}_{\text{PS}}  = -0.0639$.
+
+```{r}
+  # ATT normalized estimation
+  y1_att <- mean(D*Y)/mean(D)
+  att_wgt <- ps/(1-ps)
+  y0_att_num <- mean((1-D)*att_wgt*Y)
+  y0_att_den <- mean((1-D)*att_wgt)
+  y0_att <- y0_att_num/y0_att_den
+  att_ps <- y1_att - y0_att
+  print(att_ps)
+```
+
+
+We now turn to our methods. We take the reference propensity score to be
+$\widehat{p}_{\text{RPS}}(X_i) = n^{-1} \sum_{i=1}^n D_i$ for each
+observation $i$. That is, we assign the sample proportion of the treated
+to the reference propensity scores uniformly for all observations. Of
+course, this is likely to be misspecified; however, it has the advantage
+that $1/\widehat{p}_{\text{RPS}}(X_i)$ is never close to 0 or 1. 
 
 ```{r}
   rps <- rep(mean(D),length(D))  
 ```
 
-We start with $Q=1$. 
+The
+resulting inverse reference-propensity-score weighted ATT
+estimator is 
+$$\begin{aligned}
+\widehat{\text{ATT}}_{\text{RPS}} 
+:= \frac{\sum_{i=1}^n D_i Y_i}{\sum_{i=1}^n D_i}
+- \frac{\sum_{i=1}^n (1-D_i) Y_i}{\sum_{i=1}^n (1-D_i)}
+= -0.0507.
+\end{aligned}$$ 
+
+```{r}
+  att_rps <- mean(D*Y)/mean(D) - mean((1-D)*Y)/mean(1-D)
+  print(att_rps)
+```
+
+When the sample proportion is used as the propensity score estimator, there is no difference between
+unnormalized and normalized versions of ATT estimates. In fact, it is simply the mean difference between treatment and control groups. 
+
+```{r}
+  summary(attbounds(Y, D, X, rps, Q = 2))
+  summary(attbounds(Y, D, X, rps, Q = 3))
+  summary(attbounds(Y, D, X, rps, Q = 4))
+  
+```
+
+
+None of the covariates in the observed sample
+are identical. We therefore implement hierarchical, agglomerative
+clustering with complete linkage, where the distance is measured by the
+Euclidean distance after studentizing each of the covariates. To obtain
+the clustered bound estimates, it is necessary to choose the number $m$
+of clusters and the tuning parameter $Q$. We
+consider $$m = \left\lceil \frac{n}{L} \right\rceil$$ for
+$L = 10, 20$. In addition, we consider $Q = 3,4$.
+
+```{r}
+  # Bounding  ATT
+  nhc_set <- c(10, 20)
+  results_att <- {}
+
+  for (hc in nhc_set){
+    nhc <- ceiling(length(Y)/hc)
+
+    for (q in c(3,4)){
+      res <- attbounds(Y, D, X, rps, Q = q, n_hc = nhc)
+      results_att <- rbind(results_att,c(hc,q,res$est_lb,res$est_ub,res$ci_lb,res$ci_ub))
+    }
+  }
+  colnames(results_att) = c("L","Q","LB","UB","CI-LB","CI-UB")
+  print(results_att, digits = 3)
+```
+
+
+
+The table below reports
+estimation results of ATT bounds for extended values of $L$ and $Q$.
+When $Q=1$, our estimated bounds correspond to Manski bounds, which
+includes zero and is wide with the interval length of almost one in all
+cases of $L$. Our bounds with $Q=1$ are different across $L$ because we
+apply hierarchical clustering before obtaining Manski bounds. With
+$Q=2$, the bounds shrink so that the estimated upper bound is zero for
+all cases of $L$; with $Q = 3$, they shrink even further so that the
+upper end point of the 95% confidence interval excludes zero. Among
+three different values of $L$, the case of $L=5$ gives the tightest
+confidence interval but in this case, the lower bound is larger than the
+upper bound, indicating that the estimates might be biased. In view of
+that, we take the bound estimates with $L=10$ as our preferred estimates
+\[$-0.077,  -0.039$\] with the 95% confidence interval $[-0.117,0.006]$.
+When $Q=4$, the lower bound estimates exceed the upper bound estimates
+with $L = 5, 10$. However, the estimates with $L = 20$ give almost
+identical results to our preferred estimates. It seems that the pairs of
+$(L, Q) = (10, 3)$ or $(L, Q) = (20, 4)$ provide reasonable estimates.
+
+
+     L   Q       LB       UB    CI-LB    CI-UB
+  ---- --- -------- -------- -------- --------
+     5   1   -0.638    0.282   -0.700    0.330
+         2   -0.131   -0.000   -0.174    0.033
+         3   -0.034   -0.048   -0.076   -0.007
+         4   -0.006   -0.073   -0.079   -0.006
+    10   1   -0.664    0.307   -0.766    0.376
+         2   -0.169    0.004   -0.216    0.039
+         3   -0.077   -0.039   -0.117   -0.006
+         4   -0.049   -0.057   -0.090   -0.016
+    20   1   -0.675    0.316   -0.843    0.430
+         2   -0.178   -0.005   -0.238    0.034
+         3   -0.099   -0.046   -0.149   -0.007
+         4   -0.065   -0.060   -0.112   -0.017
+   ---- --- -------- -------- -------- --------
+
+Table: ATT Bounds: Right Heart Catheterization Study
+
+
+The study of @Connors1996 offered a conclusion that RHC could cause an
+increase in patient mortality. Based on our preferred estimates, we can
+exclude positive effects with confidence. This conclusion is based
+solely on the unconfoundedness condition, but not on the overlap
+condition, nor on the correct specification of the logit model. Overall,
+our estimates seem to be consistent with the qualitative findings in
+@Connors1996.
+
+## Bounding the Average Treatment Effect 
+
+We now turn to bounds on ATE. Using again the sample proportion of the treated as the reference propensity score,
+we bound the ATE.
+
+We start with $Q=1$.
 
 ```{r}
   summary(atebounds(Y, D, X, rps, Q = 1))
@@ -334,15 +527,7 @@ Finally, we take $Q = 4$.
   summary(atebounds(Y, D, X, rps, Q = 4))
 ```
 
+Overall, the results are similar to ATT. 
 
-## Bounding the Average Treatment Effect on the Treated
-
-We now look at ATT with a few values of $Q$.
-
-```{r}
-  summary(attbounds(Y, D, X, rps, Q = 2))
-  summary(attbounds(Y, D, X, rps, Q = 3))
-  summary(attbounds(Y, D, X, rps, Q = 4))
-  
-```
+## References
 
