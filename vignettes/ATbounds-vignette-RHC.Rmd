@@ -1,5 +1,5 @@
 ---
-title: "ATbounds-vignette-RHC"
+title: "ATbounds: An R vignette using the Right Heart Catheterization Dataset"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{ATbounds-vignette-RHC}
@@ -43,25 +43,25 @@ reference propensity scores uniformly for all observations. Of course, this is l
 We start with $Q=1$. 
 
 ```{r}
-  atebounds(Y, D, X, rps, Q = 1)
+  summary(atebounds(Y, D, X, rps, Q = 1))
 ```
 
 We now consider $Q=2$ 
 
 ```{r}
-  atebounds(Y, D, X, rps, Q = 2)
+  summary(atebounds(Y, D, X, rps, Q = 2))
 ```
 
 and $Q=3$. 
 
 ```{r}
-  atebounds(Y, D, X, rps, Q = 3)
+  summary(atebounds(Y, D, X, rps, Q = 3))
 ```
 
-Finally, we take a relatively large $Q = 10$.
+Finally, we take $Q = 4$.
 
 ```{r}
-  atebounds(Y, D, X, rps, Q = 10)
+  summary(atebounds(Y, D, X, rps, Q = 4))
 ```
 
 
@@ -70,9 +70,9 @@ Finally, we take a relatively large $Q = 10$.
 We now look at ATT with a few values of $Q$.
 
 ```{r}
-  attbounds(Y, D, X, rps, Q = 3)
-  attbounds(Y, D, X, rps, Q = 5)
-  attbounds(Y, D, X, rps, Q = 10)
+  summary(attbounds(Y, D, X, rps, Q = 2))
+  summary(attbounds(Y, D, X, rps, Q = 3))
+  summary(attbounds(Y, D, X, rps, Q = 4))
   
 ```
 

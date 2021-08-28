@@ -4,3 +4,4 @@
 .Ruserdata
 inst/doc
 **/old
+.DS_Store
