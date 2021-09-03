@@ -321,7 +321,7 @@ A cleaned version of the dataset is available in the package.
 ```{r}
   Y <- RHC[,"survival"]
   D <- RHC[,"RHC"]
-  X <- as.matrix(ATbounds::RHC[,-c(1,2)])
+  X <- as.matrix(RHC[,-c(1,2)])
 ```
 
 
@@ -528,6 +528,56 @@ Finally, we take $Q = 4$.
 ```
 
 Overall, the results are similar to ATT. 
+
+# Case Study 3: EFM
+
+```{r}
+  Y <- EFM[,"cesarean"]
+  D <- EFM[,"monitor"]
+  X <- as.matrix(EFM[,c("arrest", "breech", "nullipar", "year")])
+  year <- EFM[,"year"] 
+```
+
+```{r}
+  ate_rps <- mean(D*Y)/mean(D) - mean((1-D)*Y)/mean(1-D)
+  print(ate_rps)
+```
+
+```{r}
+  rps <- rep(mean(D),length(D))  
+```
+
+## Bounding the Average Treatment Effect 
+
+Using again the sample proportion of the treated as the reference propensity score,
+we bound the ATE.
+
+We start with $Q=1$.
+
+```{r}
+  summary(atebounds(Y, D, X, rps, Q = 1, x_discrete = TRUE))
+```
+
+We now consider $Q=2$ 
+
+```{r}
+  summary(atebounds(Y, D, X, rps, Q = 2, x_discrete = TRUE))
+```
+
+and $Q=3$. 
+
+```{r}
+  summary(atebounds(Y, D, X, rps, Q = 3, x_discrete = TRUE))
+```
+
+Finally, we take $Q = 5, 10, 20, 100$.
+
+```{r}
+  summary(atebounds(Y, D, X, rps, Q = 5, x_discrete = TRUE))
+  summary(atebounds(Y, D, X, rps, Q = 10, x_discrete = TRUE))
+  summary(atebounds(Y, D, X, rps, Q = 20, x_discrete = TRUE))
+  summary(atebounds(Y, D, X, rps, Q = 50, x_discrete = TRUE))
+```
 
 ## References
 
