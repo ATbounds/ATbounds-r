@@ -5,7 +5,7 @@
 #' who delivered at Beth Israel Hospital, Boston from January 1970 to December 1975. 
 #' The purpose of the study is to evaluate the impact of EFM on cesarean section (CS) rates. 
 #' It is found by Neutra, Greenland, and Friedman (1980) that relevant confounding factors are: 
-#' nulliparity (nulli), arrest of labor progression (arrest), malpresentation (breech), and year of study (year). 
+#' nulliparity (nullipar), arrest of labor progression (arrest), malpresentation (breech), and year of study (year). 
 #' The dataset provided here is from the supplementary materials of Richardson, Robins, and Wang (2017), 
 #' who used this dataset to illustrate their proposed methods 
 #' for modeling and estimating relative risk and risk difference. 
@@ -24,7 +24,7 @@
 #' \item{monitor}{Treatment: 1 if electronic fetal monitoring (EFM) was used; 0 otherwise}
 #' \item{arrest}{Covariate: 1 = arrest of labor progression; 0 otherwise}
 #' \item{breech}{Covariate: 1 = malpresentation (breech); 0 otherwise}
-#' \item{nulli}{Covariate: 1 = nulliparity; 0 otherwise}
+#' \item{nullipar}{Covariate: 1 = nulliparity; 0 otherwise}
 #' \item{year}{Year of study: 0,...,5 (actual values are 1970,...,1975)}
 #' }
 #' 
