@@ -1,0 +1,35 @@
+#' EFM
+#'
+#' The electronic fetal monitoring (EFM) and cesarean section (CS) dataset 
+#' from Neutra, Greenland, and Friedman (1980) consists of observations on 14,484 women 
+#' who delivered at Beth Israel Hospital, Boston from January 1970 to December 1975. 
+#' The purpose of the study is to evaluate the impact of EFM on cesarean section (CS) rates. 
+#' It is found by Neutra, Greenland, and Friedman (1980) that relevant confounding factors are: 
+#' nulliparity (nulli), arrest of labor progression (arrest), malpresentation (breech), and year of study (year). 
+#' The dataset provided here is from the supplementary materials of Richardson, Robins, and Wang (2017), 
+#' who used this dataset to illustrate their proposed methods 
+#' for modeling and estimating relative risk and risk difference. 
+#' 
+#' @references Neutra, R.R., Greenland, S.A.N.D.E.R. and Friedman, E.A., 1980. 
+#' Effect of fetal monitoring on cesarean section rates. 
+#' Obstetrics and gynecology, 55(2), pp.175-180.
+#'
+#' @references Richardson, T.S., Robins, J.M. and Wang, L., 2017. 
+#' On modeling and estimation for the relative risk and risk difference. 
+#' Journal of the American Statistical Association, 112(519), pp.1121-1130.
+#' 
+#' @format A data frame with 14484 rows and 6 variables:
+#' \describe{
+#' \item{cesarean}{Outcome: 1 if delivery was via cesarean section; 0 otherwise}
+#' \item{monitor}{Treatment: 1 if electronic fetal monitoring (EFM) was used; 0 otherwise}
+#' \item{arrest}{Covariate: 1 = arrest of labor progression; 0 otherwise}
+#' \item{breech}{Covariate: 1 = malpresentation (breech); 0 otherwise}
+#' \item{nulli}{Covariate: 1 = nulliparity; 0 otherwise}
+#' \item{year}{Year of study: 0,...,5 (actual values are 1970,...,1975)}
+#' }
+#' 
+#' @source The dataset from Neutra, Greenland, and Friedman (1980) is available 
+#' as part of supplementary materials of Richardson, Robins, and Wang (2017) 
+#' on Journal of the American Statistical Association website at 
+#' \url{https://doi.org/10.1080/01621459.2016.1192546}.
+"EFM"

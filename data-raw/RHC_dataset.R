@@ -2,7 +2,7 @@
 
 rm(list = ls())
 
-rhc <- read.csv("http://biostat.mc.vanderbilt.edu/wiki/pub/Main/DataSets/rhc.csv")
+rhc <- read.csv("https://hbiostat.org/data/repo/rhc.csv")
 
 # Demographics (3 variables)
 reg_demog <- c("age","sex","edu")
