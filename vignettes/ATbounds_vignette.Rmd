@@ -32,7 +32,8 @@ library(ATbounds)
 # Case Study 1: Bounding the Effects of a Job Training Program
 
 To illustrate the usefulness of the package, we first use the well-known 
-@LaLonde-AER dataset available at [Rajeev Dehejia's Data Page](http://users.nber.org/~rdehejia/nswdata2.html).
+@LaLonde-AER dataset available on Rajeev Dehejia's web page 
+at <http://users.nber.org/~rdehejia/nswdata2.html>.
 
 ## LaLonde's Experimental Sample 
 
@@ -115,7 +116,7 @@ The covariates are as follows:
 * `RE75`: earnings in 1975. 
 
 If we assume that the Dehejia-Wahba sample still preserves initial randomization, we can
-set the reference propensity score to be independent of covariates. However, it may not be the case and therefore, our approach can provide a robust method to check whether the Dehejia-Wahba sample can be viewed as a randomized controlled experiment. 
+set the reference propensity score to be independent of covariates. However, it may not be the case and therefore, our approach can provide a robust method to check whether the Dehejia-Wahba sample can be viewed as  as a random sample from a randomized controlled experiment.
 
 We first define the the reference propensity score.
 
@@ -160,13 +161,22 @@ In implementing `atebounds`, there are several options:
 
 * `n_hc`: number of hierarchical clusters to discretize non-discrete covariates; relevant only if x_discrete is FALSE. The default choice is `n_hc = ceiling(length(Y)/10)`, so that there are 10 observations in each cluster on average.
 
+The clusters are constructed via hierarchical, agglomerative clustering with complete linkage, where the distance is measured by the Euclidean distance after studentizing each of the covariates. As mentioned above, the number $m$ of clusters is set by $$m = \left\lceil \frac{n}{L} \right\rceil$$ for $L = 10$.
+
 We show the summary results saved in `bns_nsw`.
 
 ```{r}
   summary(bns_nsw)
 ```
 
-The 95% confidence interval $[-0.01,0.19]$ obtained here is similar to the previous interval $[0.02,0.20]$, which was obtained under the assumption that the Dehejia-Wahba sample is a random sample. This suggests that first, there is no evidence against violation of the random sampling assumption in the Dehejia-Wahba sample and second, our inference method does not suffer from unduly enlargement of the confidence interval to achieve robustness, although the estimate of null effect is now included in our confidence interval.
+Note that the estimate of the lower bound is larger than that of the upper bound. 
+This crossing problem can occur in finite samples due to random sampling errors. 
+While statistical theory guarantees that this problem cannot occur asymptotically,
+it is desirable to have a non-empty confidence interval in applications.
+We therefore use the method in @stoye2020 to obtain a valid confidence interval that is never empty.
+
+
+The 95% confidence interval $[-0.01,0.19]$ obtained here is similar to the previous interval $[0.02,0.20]$, which was obtained under the assumption that the Dehejia-Wahba sample is a random sample from NSW. This suggests that first, there is no evidence against violation of the random sampling assumption in the Dehejia-Wahba sample and second, our inference method does not suffer from unduly enlargement of the confidence interval to achieve robustness, although a null effect is now included in our confidence interval.
 
 With $Q=2$, the bounds for ATE are
 ```{r}
@@ -185,9 +195,10 @@ Recall that the point estimate of ATE under the random sampling assumption was
 print(ate_nswre)
 ```
 
-Thus, the ATE estimate based on the simple mean difference weill within the 95% confidence intervals across $Q=2, 3, 4$. 
+Thus, the ATE estimate based on the simple mean difference well within the 95% confidence intervals across $Q=2, 3, 4$. 
 
-To check sensitivity to `n_hc`, that is the number of hierarchical clusters to discretize non-discrete covariates, we now run the following:
+Recall that covariates $X$ include non-discrete variables: `RE74` and `RE75`. As a default option, `atebounds` chooses the number of hierarchical clusters to be `n_hc = ceiling(length(Y)/10)`.
+To check sensitivity to `n_hc`, we now run the following:
 
 ```{r}
 summary(atebounds(Y, D, X, rps))
@@ -195,7 +206,7 @@ summary(atebounds(Y, D, X, rps, n_hc = ceiling(length(Y)/5)))
 summary(atebounds(Y, D, X, rps, n_hc = ceiling(length(Y)/20)))
 ```
 
-Recall that the default option for `n_hc` is `n_hc = ceiling(length(Y)/10)`. It can be seen that the alternative estimation result is more similar to the default one with `n_hc = ceiling(length(Y)/20)` than with `n_hc = ceiling(length(Y)/5)`. Overall, the results are qualitatively similar across the three different specifications of `n_hc`.  
+It can be seen that the alternative estimation result is more similar to the default one with `n_hc = ceiling(length(Y)/20)` than with `n_hc = ceiling(length(Y)/5)`. Overall, the results are qualitatively similar across the three different specifications of `n_hc`.  
 
 Finally, to see what is saved in `bns_nsw`, we now print it out.
 
@@ -207,18 +218,18 @@ The output list contains:
 
 * `call`: a call in which all of the specified arguments are specified by their full names
 * `type`: ATE
-* `cov_prob`: confidence level (1-alpha)
+* `cov_prob`: confidence level ($1-\alpha$)
 * `y1_lb`: estimate of the lower bound on the average of $Y(1)$, i.e. $\mathbb{E}[Y(1)]$,
 * `y1_ub`: estimate of the upper bound on the average of $Y(1)$, i.e. $\mathbb{E}[Y(1)]$,
 * `y0_lb`: estimate of the lower bound on the average of $Y(0)$, i.e. $\mathbb{E}[Y(0)]$,
 * `y0_ub`: estimate of the upper bound on the average of $Y(0)$, i.e. $\mathbb{E}[Y(0)]$,
 * `est_lb`: estimate of the lower bound on ATE, i.e. $\mathbb{E}[Y(1) - Y(0)]$,
 * `est_ub`: estimate of the upper bound on ATE, i.e. $\mathbb{E}[Y(1) - Y(0)]$,
-* `est_rps`: the point estimate of ATE using the reference propensity score
-* `se_lb`: standard error for the estimate on the lower bound on ATE
-* `se_ub`: standard error for the estimate of the upper bound on ATE
-* `ci_lb`: the lower end point of the confidence interval for ATE
-* `ci_ub`: the upper end point of the confidence interval for ATE
+* `est_rps`: the point estimate of ATE using the reference propensity score,
+* `se_lb`: standard error for the estimate on the lower bound on ATE,
+* `se_ub`: standard error for the estimate of the upper bound on ATE,
+* `ci_lb`: the lower end point of the confidence interval for ATE,
+* `ci_ub`: the upper end point of the confidence interval for ATE.
 
 ### Bounds on ATT
 
@@ -249,7 +260,7 @@ summary(attbounds(Y, D, X, rps, n_hc = ceiling(length(Y)/20)))
 
 Bound estimates cross (that is, the lower bound is larger than the upper bound) and furthermore sensitive to the choice of `Q` and `n_hc`. This is likely to be driven by the relatively small sample size. However, once we factor into sampling uncertainty and look at the confidence intervals, all the results are more or less similar. 
 
-## NSW treated plus PSID control 
+## NSW treated and PSID control 
 
 The Dehejia-Wahba sample can be regarded as a data scenario where the propensity score is known and satisfies the overlap condition. We now turn to a different data scenario where it is likely that the propensity score is unknown and may not satisfy the overlap condition. 
 
@@ -274,7 +285,7 @@ Here, we use one of non-experimental comparison groups constructed by LaLonde fr
   summary(bns_psid)
 ```
 
-The confidence interval $[-0.35,0.31]$ here is much larger than the confidence interval $[-0.01,0.19]$ with the Dehejia-Wahba sample. It is worth noting that the sample proportion is unlikely to be correctly specified in the NSW treated plus PSID control sample. Thus, it seems that our inference method produces a wider confidence interval in order to be robust against misspecification of the propensity scores.     
+The confidence interval $[-0.35,0.31]$ here is much larger than the confidence interval $[-0.01,0.19]$ with the Dehejia-Wahba sample. It is worth noting that the sample proportion is unlikely to be correctly specified in the NSW-treated/PSID-control sample. Thus, it seems that our inference method produces a wider confidence interval in order to be robust against misspecification of the propensity scores.     
 
 We now consider the Manski bounds, which can be obtained by setting $Q = 1$. 
 
@@ -311,10 +322,10 @@ In this example, the dependent variable is 1 if a patient survived after
 treatment variable is 1 if RHC was applied within 24 hours of admission,
 and 0 otherwise. The sample size was $n = 5735$, and 2184 patients were
 treated with RHC. There are a large number of covariates:
-[@hirano2001estimation] constructed 72 variables from the dataset and
+@hirano2001estimation constructed 72 variables from the dataset and
 the same number of covariates were considered in both
-[@crump2009dealing] and [@Li-et-al:2018] and 50 covariates were used in
-[@Rothe:2017]. In our exercise, we constructed the same 72 covariates.
+@crump2009dealing and @Li-et-al:2018 and 50 covariates were used in
+@Rothe:2017. In our exercise, we constructed the same 72 covariates.
 A cleaned version of the dataset is available in the package. 
 
 
@@ -386,7 +397,7 @@ $\widehat{\text{ATT}}_{\text{PS}}  = -0.0639$.
 ```
 
 
-We now turn to our methods. We take the reference propensity score to be
+We now turn to our methods. As before, we take the reference propensity score to be
 $\widehat{p}_{\text{RPS}}(X_i) = n^{-1} \sum_{i=1}^n D_i$ for each
 observation $i$. That is, we assign the sample proportion of the treated
 to the reference propensity scores uniformly for all observations. Of
@@ -416,31 +427,31 @@ When the sample proportion is used as the propensity score estimator, there is n
 unnormalized and normalized versions of ATT estimates. In fact, it is simply the mean difference between treatment and control groups. 
 
 ```{r}
-  summary(attbounds(Y, D, X, rps, Q = 2))
-  summary(attbounds(Y, D, X, rps, Q = 3))
-  summary(attbounds(Y, D, X, rps, Q = 4))
-  
+   Xunique <- mgcv::uniquecombs(X) # A matrix of unique rows from X
+   print(c("no. of unique rows:", nrow(Xunique))) 
+   print(c("sample size       :", nrow(X)))   
 ```
 
+Note that none of the covariates in the observed sample are identical. We therefore implement hierarchical, agglomerative clustering with complete linkage. 
 
-None of the covariates in the observed sample
-are identical. We therefore implement hierarchical, agglomerative
-clustering with complete linkage, where the distance is measured by the
-Euclidean distance after studentizing each of the covariates. To obtain
-the clustered bound estimates, it is necessary to choose the number $m$
-of clusters and the tuning parameter $Q$. We
-consider $$m = \left\lceil \frac{n}{L} \right\rceil$$ for
-$L = 10, 20$. In addition, we consider $Q = 3,4$.
+We show empirical results using the default option.
 
 ```{r}
-  # Bounding  ATT
-  nhc_set <- c(10, 20)
+  summary(attbounds(Y, D, X, rps))
+```
+
+to check sensitivity with respect to tuning parameters, we vary $L$ and $Q$. 
+
+```{r, eval=FALSE}
+  # Bounding  ATT: sensitivity analysis
+  # not run to save time
+  nhc_set <- c(5, 10, 20)
   results_att <- {}
 
   for (hc in nhc_set){
     nhc <- ceiling(length(Y)/hc)
 
-    for (q in c(3,4)){
+    for (q in c(1,2,3,4)){
       res <- attbounds(Y, D, X, rps, Q = q, n_hc = nhc)
       results_att <- rbind(results_att,c(hc,q,res$est_lb,res$est_ub,res$ci_lb,res$ci_ub))
     }
@@ -448,7 +459,6 @@ $L = 10, 20$. In addition, we consider $Q = 3,4$.
   colnames(results_att) = c("L","Q","LB","UB","CI-LB","CI-UB")
   print(results_att, digits = 3)
 ```
-
 
 
 The table below reports
