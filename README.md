@@ -15,29 +15,20 @@ observed sample, or when the overlap condition is violated. This
 robustness is achieved by only using limited “pooling” of information
 across observations.
 
-See Lee and Weidner (2021), “Bounding Treatment Effects by Pooling
-Limited Information across Observations,” &lt;arXiv:??? \[econ.EM\]&gt;.
+For more details, see Lee and Weidner (2021), “Bounding Treatment
+Effects by Pooling Limited Information across Observations,” available
+at [arXiv:2111.05243 \[econ.EM\]](https://arxiv.org/abs/2111.05243).
 
 ## Installation
 
-You can install the released version of ATbounds from
-[CRAN](https://CRAN.R-project.org) with:
+You can install the development version from
+[GitHub](https://github.com/) with:
 
 ``` r
-install.packages("ATbounds")
-```
-
-And the development version from [GitHub](https://github.com/) with:
-
-``` r
-# install.packages("devtools")
+# install.packages("devtools") if devtools is not installed
 devtools::install_github("sokbae/ATbounds")
 ```
 
-## Example
+## Examples
 
-To be added
-
-## References
-
-To be added
+See the vignette for case studies using real datasets.

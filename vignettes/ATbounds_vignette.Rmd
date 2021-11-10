@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 __ATbounds__ is an R package that provides estimation and inference methods for bounding average treatment effects (on the treated) that are valid under an unconfoundedness assumption. The bounds are designed to be robust in challenging situations, for example, when the the conditioning variables take on a large number of different values in the observed sample, or when the overlap condition is violated. This robustness is achieved by only using limited "pooling" of information across observations. Namely, the bounds are constructed as sample averages over functions of the observed outcomes such that the contribution of each outcome only depends on the treatment status of a limited number of observations. No information pooling across observations leads to so-called "Manski bounds" [@manski1989anatomy; @manski1990nonparametric], while unlimited information pooling leads to standard inverse propensity score weighting. The ATbounds package provides inference methods for exploring the intermediate range between these two extremes.
 
-The methodology used in the ATbounds package is described in detail in Lee and Weidner (2021), "Bounding Treatment Effects by Pooling Limited Information across Observations," <arXiv:??? [econ.EM]>.
+The methodology used in the ATbounds package is described in detail in Lee and Weidner (2021), "Bounding Treatment Effects by Pooling Limited Information across Observations," "Bounding Treatment Effects by Pooling Limited Information across Observations," available at <https://arxiv.org/abs/2111.05243>.
 
 We begin by calling the ATbounds package.
 
@@ -474,7 +474,7 @@ three different values of $L$, the case of $L=5$ gives the tightest
 confidence interval but in this case, the lower bound is larger than the
 upper bound, indicating that the estimates might be biased. In view of
 that, we take the bound estimates with $L=10$ as our preferred estimates
-\[$-0.077,  -0.039$\] with the 95% confidence interval $[-0.117,0.006]$.
+$[-0.077,  -0.039]$ with the 95% confidence interval $[-0.117,0.006]$.
 When $Q=4$, the lower bound estimates exceed the upper bound estimates
 with $L = 5, 10$. However, the estimates with $L = 20$ give almost
 identical results to our preferred estimates. It seems that the pairs of
