@@ -541,6 +541,8 @@ Overall, the results are similar to ATT.
 
 # Case Study 3: EFM
 
+The electronic fetal monitoring (EFM) and cesarean section (CS) dataset from @EFMdata consists of observations on 14,484 women who delivered at Beth Israel Hospital, Boston from January 1970 to December 1975. The purpose of the study is to evaluate the impact of EFM on cesarean section (CS) rates. @EFMdata report that relevant confounding factors are: nulliparity (nullipar), arrest of labor progression (arrest), malpresentation (breech), and year of study (year). The dataset included in the R package is from the supplementary materials of @RRW-JASA, who used this dataset to illustrate their proposed methods for modeling and estimating relative risk and risk difference. In this daatset, all covariates are discrete. 
+
 ```{r}
   Y <- EFM[,"cesarean"]
   D <- EFM[,"monitor"]
@@ -553,8 +555,11 @@ Overall, the results are similar to ATT.
   print(ate_rps)
 ```
 
+We take the reference propensity score to be the sample proportion of the treatment.
+
 ```{r}
   rps <- rep(mean(D),length(D))  
+  print(rps[1])
 ```
 
 ## Bounding the Average Treatment Effect 
@@ -580,14 +585,17 @@ and $Q=3$.
   summary(atebounds(Y, D, X, rps, Q = 3, x_discrete = TRUE))
 ```
 
-Finally, we take $Q = 5, 10, 20, 100$.
+In this example, the reference propensity score is close to 0.5, thus implying that the results will be robust even if we take a very large $Q$. In view of that, we take  $Q = 5, 10, 20, 50, 100$.
 
 ```{r}
   summary(atebounds(Y, D, X, rps, Q = 5, x_discrete = TRUE))
   summary(atebounds(Y, D, X, rps, Q = 10, x_discrete = TRUE))
   summary(atebounds(Y, D, X, rps, Q = 20, x_discrete = TRUE))
   summary(atebounds(Y, D, X, rps, Q = 50, x_discrete = TRUE))
+  summary(atebounds(Y, D, X, rps, Q = 100, x_discrete = TRUE))
 ```
+
+Overall, the empirical results suggest that there is no significant effect of EFM on cesarean section rates.
 
 ## References
 

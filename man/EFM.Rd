@@ -36,7 +36,7 @@ who used this dataset to illustrate their proposed methods
 for modeling and estimating relative risk and risk difference.
 }
 \references{
-Neutra, R.R., Greenland, S.A.N.D.E.R. and Friedman, E.A., 1980. 
+Neutra, R.R., Greenland, S. and Friedman, E.A., 1980. 
 Effect of fetal monitoring on cesarean section rates. 
 Obstetrics and gynecology, 55(2), pp.175-180.
 

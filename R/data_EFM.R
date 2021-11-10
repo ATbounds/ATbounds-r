@@ -6,11 +6,11 @@
 #' The purpose of the study is to evaluate the impact of EFM on cesarean section (CS) rates. 
 #' It is found by Neutra, Greenland, and Friedman (1980) that relevant confounding factors are: 
 #' nulliparity (nullipar), arrest of labor progression (arrest), malpresentation (breech), and year of study (year). 
-#' The dataset provided here is from the supplementary materials of Richardson, Robins, and Wang (2017), 
+#' The dataset provided in the R package is from the supplementary materials of Richardson, Robins, and Wang (2017), 
 #' who used this dataset to illustrate their proposed methods 
 #' for modeling and estimating relative risk and risk difference. 
 #' 
-#' @references Neutra, R.R., Greenland, S.A.N.D.E.R. and Friedman, E.A., 1980. 
+#' @references Neutra, R.R., Greenland, S. and Friedman, E.A., 1980. 
 #' Effect of fetal monitoring on cesarean section rates. 
 #' Obstetrics and gynecology, 55(2), pp.175-180.
 #'
