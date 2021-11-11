@@ -18,5 +18,5 @@ Imports: stats, mgcv
 Suggests: knitr, rmarkdown, testthat, ggplot2
 VignetteBuilder: knitr
 Depends: R (>= 2.10)
-URL: https://github.com/sokbae/ATbounds/
-BugReports: https://github.com/sokbae/ATbounds/issues
+URL: https://github.com/ATbounds/ATbounds-r/
+BugReports: https://github.com/ATbounds/ATbounds-r/issues

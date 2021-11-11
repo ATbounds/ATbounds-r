@@ -26,7 +26,7 @@ You can install the development version from
 
 ``` r
 # install.packages("devtools") if devtools is not installed
-devtools::install_github("sokbae/ATbounds")
+devtools::install_github("https://github.com/ATbounds/ATbounds-r")
 ```
 
 ## Examples
