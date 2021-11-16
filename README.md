@@ -4,6 +4,10 @@
 # ATbounds
 
 <!-- badges: start -->
+
+[![Build
+Status](https://app.travis-ci.com/ATbounds/ATbounds-r.svg?branch=master)](https://app.travis-ci.com/ATbounds/ATbounds-r)
+[![codecov](https://codecov.io/gh/ATbounds/ATbounds-r/branch/master/graph/badge.svg?token=9GV0I2HGCV)](https://codecov.io/gh/ATbounds/ATbounds-r)
 <!-- badges: end -->
 
 ***ATbounds*** is an R package that provides estimation and inference
