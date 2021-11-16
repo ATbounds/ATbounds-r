@@ -1,4 +1,4 @@
-context("Testing ATbounds")
+context("Testing ATbounds: simulation_dgp")
 
 test_that("ATE-oracle and the mean difference estimator should be similar when P(D=1|X) = 0.5", {
   set.seed(1)
@@ -23,5 +23,14 @@ test_that("ATE-oracle and the mean difference estimator should be different when
   diff <- (abs(ate - mde) <= 1e-2)
   
   expect_false(diff)
+  
+})
+
+test_that("Discrete and continuous cases are different", {
+  set.seed(1)
+  data_d <- simulation_dgp(100, ps_spec = "non-overlap", x_discrete = TRUE)
+  set.seed(1)
+  data_c <- simulation_dgp(100, ps_spec = "non-overlap")
+  expect_false(data_c$covariate[1] == data_d$covariate[1])
   
 })

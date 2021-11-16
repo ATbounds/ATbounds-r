@@ -19,7 +19,7 @@ A data frame with 14484 rows and 6 variables:
 The dataset from Neutra, Greenland, and Friedman (1980) is available 
 as part of supplementary materials of Richardson, Robins, and Wang (2017) 
 on Journal of the American Statistical Association website at 
-\url{https://doi.org/10.1080/01621459.2016.1192546}.
+\doi{10.1080/01621459.2016.1192546}.
 }
 \usage{
 EFM
@@ -31,7 +31,7 @@ who delivered at Beth Israel Hospital, Boston from January 1970 to December 1975
 The purpose of the study is to evaluate the impact of EFM on cesarean section (CS) rates. 
 It is found by Neutra, Greenland, and Friedman (1980) that relevant confounding factors are: 
 nulliparity (nullipar), arrest of labor progression (arrest), malpresentation (breech), and year of study (year). 
-The dataset provided here is from the supplementary materials of Richardson, Robins, and Wang (2017), 
+The dataset provided in the R package is from the supplementary materials of Richardson, Robins, and Wang (2017), 
 who used this dataset to illustrate their proposed methods 
 for modeling and estimating relative risk and risk difference.
 }

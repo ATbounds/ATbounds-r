@@ -31,5 +31,5 @@
 #' @source The dataset from Neutra, Greenland, and Friedman (1980) is available 
 #' as part of supplementary materials of Richardson, Robins, and Wang (2017) 
 #' on Journal of the American Statistical Association website at 
-#' \url{https://doi.org/10.1080/01621459.2016.1192546}.
+#' \doi{10.1080/01621459.2016.1192546}.
 "EFM"

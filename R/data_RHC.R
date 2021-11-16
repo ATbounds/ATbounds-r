@@ -12,11 +12,11 @@
 #' 
 #' @references Connors, A.F., Speroff, T., Dawson, N.V., Thomas, C., Harrell, F.E., Wagner, D., Desbiens, N., Goldman, L., Wu, A.W., Califf, R.M. and Fulkerson, W.J., 1996. 
 #' The effectiveness of right heart catheterization in the initial care of critically III patients. JAMA, 276(11), pp.889-897.
-#' \url{https://doi.org/10.1001/jama.1996.03540110043030}
+#' \doi{10.1001/jama.1996.03540110043030}
 #'
 #' @references Hirano, K., Imbens, G.W. Estimation of Causal Effects using Propensity Score Weighting: An Application to Data on Right Heart Catheterization, 2001.
 #' Health Services & Outcomes Research Methodology 2, pp.259–278. 
-#' \url{https://doi.org/10.1023/A:1020371312283}
+#' \doi{10.1023/A:1020371312283}
 #' 
 #' @references D. J. Murphy, L. E. Cluff, SUPPORT: Study to understand prognoses and preferences for outcomes and risks of treatments—study design, 1990.
 #' Journal of Clinical Epidemiology, 43, pp. 1S–123S
@@ -101,5 +101,5 @@
 #' }
 #' 
 #' @source The dataset is publicly available on the Vanderbilt Biostatistics website at 
-#' \url{http://biostat.mc.vanderbilt.edu/wiki/Main/DataSets}.
+#' \url{https://hbiostat.org/data/}.
 "RHC"
