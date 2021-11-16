@@ -541,7 +541,7 @@ Overall, the results are similar to ATT.
 
 # Case Study 3: EFM
 
-The electronic fetal monitoring (EFM) and cesarean section (CS) dataset from @EFMdata consists of observations on 14,484 women who delivered at Beth Israel Hospital, Boston from January 1970 to December 1975. The purpose of the study is to evaluate the impact of EFM on cesarean section (CS) rates. @EFMdata report that relevant confounding factors are: nulliparity (nullipar), arrest of labor progression (arrest), malpresentation (breech), and year of study (year). The dataset included in the R package is from the supplementary materials of @RRW-JASA, who used this dataset to illustrate their proposed methods for modeling and estimating relative risk and risk difference. In this daatset, all covariates are discrete. 
+The electronic fetal monitoring (EFM) and cesarean section (CS) dataset from @EFMdata consists of observations on 14,484 women who delivered at Beth Israel Hospital, Boston from January 1970 to December 1975. The purpose of the study is to evaluate the impact of EFM on cesarean section (CS) rates. @EFMdata report that relevant confounding factors are: nulliparity (nullipar), arrest of labor progression (arrest), malpresentation (breech), and year of study (year). The dataset included in the R package is from the supplementary materials of @RRW-JASA, who used this dataset to illustrate their proposed methods for modeling and estimating relative risk and risk difference. In this dataset, all covariates are discrete. 
 
 ```{r}
   Y <- EFM[,"cesarean"]
