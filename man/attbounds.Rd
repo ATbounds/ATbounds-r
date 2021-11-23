@@ -55,7 +55,7 @@ Bounds the average treatment effect on the treated (ATT) under the unconfoundedn
 \examples{
   Y <- RHC[,"survival"]
   D <- RHC[,"RHC"]
-  X <- RHC[,-c(1,2)]
+  X <- RHC[,c("age","edu")]
   rps <- rep(mean(D),length(D))
   results_att <- attbounds(Y, D, X, rps, Q = 3)
 

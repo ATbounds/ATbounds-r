@@ -59,7 +59,7 @@ Bounds the average treatment effect (ATE) under the unconfoundedness assumption 
 \examples{
   Y <- RHC[,"survival"]
   D <- RHC[,"RHC"]
-  X <- RHC[,-c(1,2)]
+  X <- RHC[,c("age","edu")]
   rps <- rep(mean(D),length(D))
   results_ate <- atebounds(Y, D, X, rps, Q = 3)
 
