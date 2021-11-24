@@ -1,3 +1,12 @@
+## Responses to the prevous submission
+* Please reduce the length of the title to less than 65 characters. 
+  
+  The title is now shortened to be 57 characters ("Bounding Treatment Effects by Limited Information Pooling").
+
+* In your description field you write "... for example, when the the conditioning ..." There is one "the" too much, please omit one.
+
+  Thank you for catching the typo. It is fixed now.
+
 ## Test environments
 * local x86_64-apple-darwin17.0 (64-bit), using R 4.1.1
 * travis-ci: x86_64-pc-linux-gnu, using R 4.0.2
