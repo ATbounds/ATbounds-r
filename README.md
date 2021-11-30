@@ -7,6 +7,7 @@
 
 [![Build
 Status](https://app.travis-ci.com/ATbounds/ATbounds-r.svg?branch=master)](https://app.travis-ci.com/ATbounds/ATbounds-r)
+[![](https://cranlogs.r-pkg.org/badges/ATbounds)](https://cran.r-project.org/package=ATbounds)
 [![codecov](https://codecov.io/gh/ATbounds/ATbounds-r/branch/master/graph/badge.svg?token=9GV0I2HGCV)](https://app.codecov.io/gh/ATbounds/ATbounds-r)
 <!-- badges: end -->
 
@@ -25,7 +26,14 @@ at [arXiv:2111.05243 \[econ.EM\]](https://arxiv.org/abs/2111.05243).
 
 ## Installation
 
-You can install the development version from
+You can install the released version of ciccr from
+[CRAN](https://CRAN.R-project.org) with:
+
+``` r
+install.packages("ATbounds")
+```
+
+Alternatively, you can install the development version from
 [GitHub](https://github.com/) with:
 
 ``` r
